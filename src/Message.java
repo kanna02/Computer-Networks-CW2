@@ -1,4 +1,5 @@
 //TODO: comment correctly
+//TODO: change methods to voids?
 /***
  * Code availability: https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
  */
@@ -6,6 +7,8 @@
 import java.io.*;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,35 +42,49 @@ public class Message {
     PrintWriter printWriter = new PrintWriter(fileWriter);
 
 
+    /*** Gets the UNIX epoch time ***/
+    public void Time(){
+        long unixTime = Instant.now().getEpochSecond();
+        printWriter.println("Time: "+ unixTime);
+
+
+    }
+
     /*** Method to read in the origin of the message ***/
     public String Origin() throws IOException {
         System.out.print("Enter origin: ");
         String from = keyboardReader.readLine();
-
-        // Print the user input to text file
         printWriter.println("From: "+ from);
 
         return from;
     }
 
+    //TODO ignore if input is null
+    public String To() throws IOException {
+        System.out.print("Enter recipient: ");
+        String to = keyboardReader.readLine();
+        printWriter.println("To: " + to);
+
+        return to;
+    }
+
+    //TODO ignore if input is null
     /*** Method to read in the topic of a message. ***/
     public String Topic() throws IOException {
         System.out.print("Enter topic: ");
         String topic = keyboardReader.readLine();
 
-        // Print the user input to text file
-        printWriter.println("Topic: " + topic);
-
+        if (topic != null) {
+            printWriter.println("Topic: " + topic);
+        }
         return topic;
     }
 
-
+    //TODO ignore if input is null
     /*** Method to read in the subject of the message. ***/
     public String Subject() throws IOException {
         System.out.print("Subject: ");
         String subject = keyboardReader.readLine();
-
-        // Print the user input to text file
         printWriter.println("Subject: " + subject);
 
         return subject;
@@ -93,12 +110,19 @@ public class Message {
 
 
 
+
     /*** run the program ***/
     public static void main(String[] args) throws IOException {
         Message message = new Message();
+        //headers
+        //TODO message id
+        message.Time();
         message.Origin();
+        //TODO contents
         message.Topic();
+        message.To();
         message.Subject();
+        //body
         message.Body();
     }
 
