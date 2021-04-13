@@ -1,7 +1,9 @@
 //TODO: comment correctly
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+/***
+ * Code availability: https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
+ */
+
+import java.io.*;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class Message {
     /**
      * Creates a message with the following necessary parameters:
      */
-    public Message(/***String id, Timestamp time, String origin, int contents***/) {
+    public Message(/***String id, Timestamp time, String origin, int contents***/) throws IOException {
 //        this.id = id;
 //        this.time = time;
 //        this.origin = origin;
@@ -32,11 +34,19 @@ public class Message {
     /*** to read data from the keyboard ***/
     BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
 
+    /*** to save message to a text file ***/
+    FileWriter fileWriter = new FileWriter("messages.txt");
+    PrintWriter printWriter = new PrintWriter(fileWriter);
+
+
     /*** Method to read in the origin of the message ***/
     public String Origin() throws IOException {
         System.out.print("Enter origin: ");
         String from = keyboardReader.readLine();
-        System.out.println("Message sent from: " + from);
+
+        // Print the user input to text file
+        printWriter.println("From: "+ from);
+
         return from;
     }
 
@@ -44,21 +54,28 @@ public class Message {
     public String Topic() throws IOException {
         System.out.print("Enter topic: ");
         String topic = keyboardReader.readLine();
-        System.out.println("Message topic is: " + topic);
+
+        // Print the user input to text file
+        printWriter.println("Topic: " + topic);
+
         return topic;
     }
 
+
     /*** Method to read in the subject of the message. ***/
     public String Subject() throws IOException {
-        System.out.print("Enter subject: ");
+        System.out.print("Subject: ");
         String subject = keyboardReader.readLine();
-        System.out.println("Message subject is: " + subject);
+
+        // Print the user input to text file
+        printWriter.println("Subject: " + subject);
+
         return subject;
     }
 
     /** Method to read in an input of 0...* lines. ***/
     public String Body() throws IOException {
-        System.out.println("Enter message. Press tab to finish");
+        System.out.println("Enter message. Press TAB and then ENTER to finish");
         Scanner scanner = new Scanner(System.in);
         String body;
         scanner.useDelimiter("\\t");
@@ -66,14 +83,13 @@ public class Message {
             body = scanner.next();
             break;
         }
-        System.out.println("Your message is: " + "\n" + body);
+
+        // Print the user input to text file
+        printWriter.println("Message: " + "\n" + body);
+        printWriter.close();
+
         return body;
     }
-
-
-
-
-
 
 
 
