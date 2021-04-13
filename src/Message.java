@@ -5,6 +5,7 @@
  */
 
 import java.io.*;
+import java.security.MessageDigest;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -41,11 +42,18 @@ public class Message {
     FileWriter fileWriter = new FileWriter("messages.txt");
     PrintWriter printWriter = new PrintWriter(fileWriter);
 
+    /*** Generates the SHA-256 hash for the message ***/
+//    //Use SHA-1 algorithm
+//    MessageDigest shaDigest = MessageDigest.getInstance("SHA-256");
+//
+//    //SHA-1 checksum
+//    String shaChecksum = getFileChecksum(shaDigest, fileWriter);
 
     /*** Gets the UNIX epoch time ***/
-    public void Time(){
+    public long Time(){
         long unixTime = Instant.now().getEpochSecond();
         printWriter.println("Time: "+ unixTime);
+        return unixTime;
 
 
     }
@@ -90,19 +98,25 @@ public class Message {
         return subject;
     }
 
+    //TODO: count lines
     /** Method to read in an input of 0...* lines. ***/
     public String Body() throws IOException {
         System.out.println("Enter message. Press TAB and then ENTER to finish");
         Scanner scanner = new Scanner(System.in);
-        String body;
         scanner.useDelimiter("\\t");
+
+        int count = 0;  //contents counter
+
+        String body;
         while (true) {
             body = scanner.next();
+            // count lines
+            String[] line = body.split("\n"); //look for new line
+            count += line.length;
             break;
         }
-
         // Print the user input to text file
-        printWriter.println("Message: " + "\n" + body);
+        printWriter.println("Contents: "+ count + "\n" + body);
         printWriter.close();
 
         return body;
@@ -118,7 +132,6 @@ public class Message {
         //TODO message id
         message.Time();
         message.Origin();
-        //TODO contents
         message.Topic();
         message.To();
         message.Subject();
