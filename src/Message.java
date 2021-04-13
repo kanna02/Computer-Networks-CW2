@@ -2,10 +2,14 @@
 //TODO: change methods to voids?
 /***
  * Code availability: https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
+ * Code availability for SHA-256: https://www.geeksforgeeks.org/sha-256-hash-in-java/
  */
 
 import java.io.*;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -43,19 +47,42 @@ public class Message {
     PrintWriter printWriter = new PrintWriter(fileWriter);
 
     /*** Generates the SHA-256 hash for the message ***/
-//    //Use SHA-1 algorithm
-//    MessageDigest shaDigest = MessageDigest.getInstance("SHA-256");
-//
-//    //SHA-1 checksum
-//    String shaChecksum = getFileChecksum(shaDigest, fileWriter);
+
+    public static byte[] getSHA(String input) throws NoSuchAlgorithmException
+    {
+        // Static getInstance method is called with hashing SHA
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+        // digest() method called
+        // to calculate message digest of an input
+        // and return array of byte
+        return messageDigest.digest(input.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String toHexString(byte[] hash)
+    {
+        // Convert byte array into signum representation
+        BigInteger number = new BigInteger(1, hash);
+
+        // Convert message digest into hex value
+        StringBuilder hexString = new StringBuilder(number.toString(16));
+
+        // Pad with leading zeros
+        while (hexString.length() < 32)
+        {
+            hexString.insert(0, '0');
+        }
+
+        return hexString.toString();
+    }
+
+
 
     /*** Gets the UNIX epoch time ***/
     public long Time(){
         long unixTime = Instant.now().getEpochSecond();
         printWriter.println("Time: "+ unixTime);
         return unixTime;
-
-
     }
 
     /*** Method to read in the origin of the message ***/
@@ -98,7 +125,7 @@ public class Message {
         return subject;
     }
 
-    //TODO: count lines
+
     /** Method to read in an input of 0...* lines. ***/
     public String Body() throws IOException {
         System.out.println("Enter message. Press TAB and then ENTER to finish");
@@ -126,17 +153,21 @@ public class Message {
 
 
     /*** run the program ***/
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         Message message = new Message();
         //headers
-        //TODO message id
-        message.Time();
-        message.Origin();
-        message.Topic();
-        message.To();
-        message.Subject();
-        //body
-        message.Body();
+        /*** Message ID ***/
+        String s1 = "GeeksForGeeks";
+        //String sum[] = {"unixTime","body"};
+        System.out.println( s1 + " : " + toHexString(getSHA(s1)));
+
+//        message.Time();
+//        message.Origin();
+//        message.Topic();
+//        message.To();
+//        message.Subject();
+//        //body
+//        message.Body();
     }
 
 }

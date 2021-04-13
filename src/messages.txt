@@ -1,9 +1,0 @@
-Time: 1618330631
-From: Anna
-Topic: Messages
-To: Max
-Subject: First Message
-Contents: 3
-This is my first message.
-It will have 3 lines.
-This is the last line
