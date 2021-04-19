@@ -5,6 +5,10 @@
 
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /***
  * A class to create a TCP Client.
@@ -17,40 +21,46 @@ public class TCPClient {
 
     /***
      * Runs the server.
-     * @throws IOException
      */
-    public void run() throws IOException {
+    public void run()   {
         try {
 
-
-
-
             /*** get server IP address ***/
-            InetAddress host = InetAddress.getLocalHost();
+           // InetAddress host = InetAddress.getLocalHost();
            // InetAddress host = InetAddress.getByName("localhost");
 
-            /*** get IP address from user ***/
-//            System.out.println("Enter IP address:");
-//
-//            byte part1, part2, part3, part4;
-//
-//            byte[] ipAddr = new byte[]{part1, 0, 0, 1};
-//
-//
-//            InetAddress host = InetAddress.getByAddress(ipAddr);
+            /*** get IP address from user input ***/
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter IP address: ");
 
+            //adds numbers from users IP entry to string array splits
+            String input = scanner.next();
+            String[] splits = input.split("\\.");
 
+//            System.out.println("String array: " + Arrays.toString(splits));
 
+            // TODO: repetitive?
+            //converts the string elements to bytes and adds to byte array ipAddr
+            byte x1,x2,x3,x4;
+            x1 = Byte.parseByte(splits[0]);
+            x2 = Byte.parseByte(splits[1]);
+            x3 = Byte.parseByte(splits[2]);
+            x4 = Byte.parseByte(splits[3]);
+            byte[] ipAddr = new byte[] { x1,x2,x3,x4 };
 
-            int port = 20111;
+            //creates IP address out of byte array
+            InetAddress addr = InetAddress.getByAddress("Localhost",ipAddr);
 
+//            System.out.println("Byte array: " + Arrays.toString(addr.getAddress()));
 
-            /*** create client socket and connect on server port ***/
+            /** get port from user input**/
+            System.out.print("Enter port number: ");
+            int port = scanner.nextInt();
+
+            /*** create client socket and connect to server on chosen port ***/
             System.out.println("Connecting to server on port " + port);
-            Socket clientSocket = new Socket(host,port);
-            //Socket socket = new Socket("127.0.0.1", serverPort);
+            Socket clientSocket = new Socket(addr,port);
             System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
-
 
             /*** to send data to the server ***/
             DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
@@ -61,9 +71,6 @@ public class TCPClient {
             /*** to read data from the keyboard ***/
             BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
 
-
-
-
             /** output what server says **/
             String messageClient, messageServer;
             while (true) {
@@ -71,7 +78,6 @@ public class TCPClient {
                 if (messageClient == null) {
                     break;
                 }
-
                 /*** send to the server ***/
                 sendData.writeBytes(messageClient + "\n");
 
