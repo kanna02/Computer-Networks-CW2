@@ -1,5 +1,4 @@
 //TODO: comment correctly
-//TODO: ignore empty headers that are not necessary
 /***
  * Code availability: https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
  * Code availability for SHA-256: https://www.geeksforgeeks.org/sha-256-hash-in-java/
@@ -112,9 +111,9 @@ public class Message {
         printWriter.println("Message-ID: SHA-256 " + toHexString(messageDigest.digest()) );
         printWriter.println("Time-sent: " + unixTime);
         printWriter.println("From: " + from);
-        printWriter.println("Topic: " + topic); // 0..1
-        printWriter.println("To: " + to); // 0..1
-        printWriter.println("Subject: " + subject); // 0..1
+        if (! topic.isEmpty()) {printWriter.println("Topic: " + topic); } // 0..1
+        else if (! to.isEmpty()) {printWriter.println("To: " + to); } // 0..1
+        else if (! subject.isEmpty()) {printWriter.println("Subject: " + subject); } // 0..1
         printWriter.println("Contents: " + contents);
         printWriter.println(body);
         printWriter.close();
