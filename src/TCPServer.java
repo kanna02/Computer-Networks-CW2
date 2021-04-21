@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.lang.Math;
+import java.security.NoSuchAlgorithmException;
 
 
 /***
@@ -84,9 +85,14 @@ public class TCPServer {
     }
 
     /*** run the program ***/
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         TCPServer server = new TCPServer();
         server.run();
+
+        Message message = new Message();
+
+        message.createMessage();
+        message.writeToFile();
 
 
     }

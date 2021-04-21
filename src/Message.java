@@ -1,4 +1,5 @@
 //TODO: comment correctly
+//TODO: add error message when forgotten header
 /***
  * Code availability: https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
  * Code availability for SHA-256: https://www.geeksforgeeks.org/sha-256-hash-in-java/
@@ -61,13 +62,13 @@ public class Message {
         System.out.print("Enter recipient: ");
         to = keyboardReader.readLine();
 
-        /*** subject ***/
-        System.out.print("Subject: ");
-        subject = keyboardReader.readLine();
-
         /*** topic ***/
         System.out.print("Enter topic: ");
         topic = keyboardReader.readLine();
+
+        /*** subject ***/
+        System.out.print("Enter Subject: ");
+        subject = keyboardReader.readLine();
 
         /*** body (includes contents) ***/
         System.out.println("Enter message. Press TAB and then ENTER to finish");
@@ -111,9 +112,9 @@ public class Message {
         printWriter.println("Message-ID: SHA-256 " + toHexString(messageDigest.digest()) );
         printWriter.println("Time-sent: " + unixTime);
         printWriter.println("From: " + from);
+        if (! to.isEmpty()) {printWriter.println("To: " + to); } // 0..1
         if (! topic.isEmpty()) {printWriter.println("Topic: " + topic); } // 0..1
-        else if (! to.isEmpty()) {printWriter.println("To: " + to); } // 0..1
-        else if (! subject.isEmpty()) {printWriter.println("Subject: " + subject); } // 0..1
+        if (! subject.isEmpty()) {printWriter.println("Subject: " + subject); } // 0..1
         printWriter.println("Contents: " + contents);
         printWriter.println(body);
         printWriter.close();

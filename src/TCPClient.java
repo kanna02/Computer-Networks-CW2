@@ -6,6 +6,7 @@
 
 import java.io.*;
 import java.net.*;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -105,9 +106,14 @@ public class TCPClient {
         }
     }
         /*** run the program ***/
-        public static void main(String[] args) throws IOException {
+        public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
             TCPClient client = new TCPClient();
             client.run();
+
+            Message message = new Message();
+
+            message.createMessage();
+            message.writeToFile();
     }
 
 }
