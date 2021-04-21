@@ -1,3 +1,4 @@
+//TODO: comment correctly
 /**
  * Code Availability: https://www.bogotobogo.com/Java/tutorials/tcp_socket_server_client.php
  *

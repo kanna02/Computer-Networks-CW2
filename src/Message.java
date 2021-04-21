@@ -1,5 +1,5 @@
 //TODO: comment correctly
-//TODO: change methods to voids?
+//TODO: hash ID
 /***
  * Code availability: https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
  * Code availability for SHA-256: https://www.geeksforgeeks.org/sha-256-hash-in-java/
@@ -23,20 +23,20 @@ import java.util.Scanner;
  * A class for writing messages.
  */
 public class Message {
-    private String id;
-    private Timestamp time;
-    private String origin;
+    private long unixTime;
+    private String from;
+    private String to;
+    private String subject;
+    private String topic;
+    private String body;
     private int contents;
 
 
     /**
      * Creates a message with the following necessary parameters:
      */
-    public Message(/***String id, Timestamp time, String origin, int contents***/) throws IOException {
-//        this.id = id;
-//        this.time = time;
-//        this.origin = origin;
-//        this.contents = contents;
+    public Message() throws IOException {
+
     }
 
     /*** to read data from the keyboard ***/
@@ -47,7 +47,6 @@ public class Message {
     PrintWriter printWriter = new PrintWriter(fileWriter);
 
     /*** Generates the SHA-256 hash for the message ***/
-
     public static byte[] getSHA(String input) throws NoSuchAlgorithmException
     {
         // Static getInstance method is called with hashing SHA
@@ -77,97 +76,73 @@ public class Message {
     }
 
 
+    public void createMessage() throws IOException {
 
-    /*** Gets the UNIX epoch time ***/
-    public long Time(){
-        long unixTime = Instant.now().getEpochSecond();
-        printWriter.println("Time: "+ unixTime);
-        return unixTime;
-    }
+        /*** time ***/
+        unixTime = Instant.now().getEpochSecond();
 
-    /*** Method to read in the origin of the message ***/
-    public String Origin() throws IOException {
+        /*** from ***/
         System.out.print("Enter origin: ");
-        String from = keyboardReader.readLine();
-        printWriter.println("From: "+ from);
+        from = keyboardReader.readLine();
 
-        return from;
-    }
-
-    //TODO ignore if input is null
-    public String To() throws IOException {
+        /*** to (recipient) ***/
         System.out.print("Enter recipient: ");
-        String to = keyboardReader.readLine();
-        printWriter.println("To: " + to);
+        to = keyboardReader.readLine();
 
-        return to;
-    }
-
-    //TODO ignore if input is null
-    /*** Method to read in the topic of a message. ***/
-    public String Topic() throws IOException {
-        System.out.print("Enter topic: ");
-        String topic = keyboardReader.readLine();
-
-        if (topic != null) {
-            printWriter.println("Topic: " + topic);
-        }
-        return topic;
-    }
-
-    //TODO ignore if input is null
-    /*** Method to read in the subject of the message. ***/
-    public String Subject() throws IOException {
+        /*** subject ***/
         System.out.print("Subject: ");
-        String subject = keyboardReader.readLine();
-        printWriter.println("Subject: " + subject);
+        subject = keyboardReader.readLine();
 
-        return subject;
-    }
+        /*** topic ***/
+        System.out.print("Enter topic: ");
+        topic = keyboardReader.readLine();
 
-
-    /** Method to read in an input of 0...* lines. ***/
-    public String Body() throws IOException {
+        /*** body (includes contents) ***/
         System.out.println("Enter message. Press TAB and then ENTER to finish");
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\\t");
 
-        int count = 0;  //contents counter
+        contents = 0;  //contents counter
 
-        String body;
         while (true) {
             body = scanner.next();
             // count lines
             String[] line = body.split("\n"); //look for new line
-            count += line.length;
+            contents += line.length;
             break;
         }
-        // Print the user input to text file
-        printWriter.println("Contents: "+ count + "\n" + body);
-        printWriter.close();
 
-        return body;
+        //TODO: place id generation here
+
+
     }
+    /*** writes the message to a text file ***/
+    public void writeToFile() {
 
-
+        //write id to file
+        printWriter.println("Time-sent: " + unixTime);
+        printWriter.println("From: " + from);
+        printWriter.println("Topic: " + topic); // 0..1
+        printWriter.println("To: " + to); // 0..1
+        printWriter.println("Subject: " + subject); // 0..1
+        printWriter.println("Contents: " + contents);
+        printWriter.println(body);
+        printWriter.close();
+    }
 
 
     /*** run the program ***/
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         Message message = new Message();
-        //headers
-        /*** Message ID ***/
-        String s1 = "GeeksForGeeks";
-        //String sum[] = {"unixTime","body"};
-        System.out.println( s1 + " : " + toHexString(getSHA(s1)));
 
-//        message.Time();
-//        message.Origin();
-//        message.Topic();
-//        message.To();
-//        message.Subject();
-//        //body
-//        message.Body();
+        /*** Message ID ***/
+//        String s1 = "GeeksForGeeks";
+//       // String sum[] = {"unixTime","body"};
+//        System.out.println( s1 + " : " + toHexString(getSHA(s1)));
+
+        message.createMessage();
+        message.writeToFile();
+
     }
 
 }
