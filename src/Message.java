@@ -1,9 +1,11 @@
 //TODO: comment correctly
-//TODO: hash ID
+//TODO: ignore empty headers that are not necessary
 /***
  * Code availability: https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
  * Code availability for SHA-256: https://www.geeksforgeeks.org/sha-256-hash-in-java/
  */
+
+import org.w3c.dom.ls.LSOutput;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -23,6 +25,7 @@ import java.util.Scanner;
  * A class for writing messages.
  */
 public class Message {
+
     private long unixTime;
     private String from;
     private String to;
@@ -33,10 +36,9 @@ public class Message {
 
 
     /**
-     * Creates a message with the following necessary parameters:
+     * Constructor
      */
     public Message() throws IOException {
-
     }
 
     /*** to read data from the keyboard ***/
@@ -46,37 +48,8 @@ public class Message {
     FileWriter fileWriter = new FileWriter("messages.txt");
     PrintWriter printWriter = new PrintWriter(fileWriter);
 
-    /*** Generates the SHA-256 hash for the message ***/
-    public static byte[] getSHA(String input) throws NoSuchAlgorithmException
-    {
-        // Static getInstance method is called with hashing SHA
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
-        // digest() method called
-        // to calculate message digest of an input
-        // and return array of byte
-        return messageDigest.digest(input.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public static String toHexString(byte[] hash)
-    {
-        // Convert byte array into signum representation
-        BigInteger number = new BigInteger(1, hash);
-
-        // Convert message digest into hex value
-        StringBuilder hexString = new StringBuilder(number.toString(16));
-
-        // Pad with leading zeros
-        while (hexString.length() < 32)
-        {
-            hexString.insert(0, '0');
-        }
-
-        return hexString.toString();
-    }
-
-
-    public void createMessage() throws IOException {
+    public void createMessage() throws IOException, NoSuchAlgorithmException {
 
         /*** time ***/
         unixTime = Instant.now().getEpochSecond();
@@ -112,14 +85,31 @@ public class Message {
             break;
         }
 
-        //TODO: place id generation here
-
-
+        /*** Generate SHA-256 sum of the message ***/
+        //TODO: put the id generation here?
     }
-    /*** writes the message to a text file ***/
-    public void writeToFile() {
 
-        //write id to file
+    /*** generates the message id and writes the message to a text file ***/
+    public void writeToFile() throws NoSuchAlgorithmException {
+        /*** Generate SHA-256 sum of the message ***/
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+        BigInteger time_big = new BigInteger(String.valueOf(unixTime)); // time to big int
+        BigInteger contents_big = new BigInteger(String.valueOf(contents)); // contens to big int
+
+        // string headers
+        messageDigest.update(from.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(topic.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(to.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(subject.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(body.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(time_big.toByteArray()); // add time header as byte array
+        messageDigest.update(contents_big.toByteArray()); // add contents header as byte array
+
+        messageDigest.digest();
+
+        /*** write to file ***/
+        printWriter.println("Message-ID: SHA-256 " + toHexString(messageDigest.digest()) );
         printWriter.println("Time-sent: " + unixTime);
         printWriter.println("From: " + from);
         printWriter.println("Topic: " + topic); // 0..1
@@ -130,19 +120,30 @@ public class Message {
         printWriter.close();
     }
 
+    /*** to visualize the hash ***/
+    public static String toHexString(byte[] hash)
+    {
+        // Convert byte array into signum representation
+        BigInteger number = new BigInteger(1, hash);
 
-    /*** run the program ***/
+        // Convert message digest into hex value
+        StringBuilder hexString = new StringBuilder(number.toString(16));
+
+        // Pad with leading zeros
+        while (hexString.length() < 32)
+        {
+            hexString.insert(0, '0');
+        }
+
+        return hexString.toString();
+    }
+
+    /*** to run the program ***/
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         Message message = new Message();
-
-        /*** Message ID ***/
-//        String s1 = "GeeksForGeeks";
-//       // String sum[] = {"unixTime","body"};
-//        System.out.println( s1 + " : " + toHexString(getSHA(s1)));
 
         message.createMessage();
         message.writeToFile();
 
     }
-
 }
