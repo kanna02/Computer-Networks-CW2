@@ -12,6 +12,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 /***
  * A class to create a TCP Client.
  */
@@ -22,7 +23,7 @@ public class TCPClient {
     public TCPClient() {}
 
     /***
-     * Runs the server.
+     * Runs the client.
      */
     public void run()   {
         try {
@@ -64,6 +65,9 @@ public class TCPClient {
             Socket clientSocket = new Socket(addr,port);
             System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
 
+            /*** define protocol ***/
+            Requests.request("protocol");
+
             /*** to send data to the server ***/
             DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
 
@@ -77,14 +81,30 @@ public class TCPClient {
             String messageClient, messageServer;
             while (true) {
                 messageClient = keyboardReader.readLine();
+
+                //TODO: fix this it doesnt work
+                if (messageClient == "Message") {
+
+                    Message message = new Message();
+                    message.createMessage();
+                    message.writeToFile();
+                }
+
+
                 if (messageClient == null) {
                     break;
                 }
+
                 /*** send to the server ***/
                 sendData.writeBytes(messageClient + "\n");
 
                 /*** receive from the server ***/
                 messageServer = readData.readLine();
+
+                //TODO: doesn't work
+                if (messageServer == "TIME?") {
+                    Requests.request("time");
+                }
 
                 System.out.println(messageClient);
                 System.out.println("Server says: " + messageServer);
@@ -103,17 +123,19 @@ public class TCPClient {
         }
         catch(IOException e){
             e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
     }
-        /*** run the program ***/
+
+
+
+    /*** to run the program ***/
         public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
             TCPClient client = new TCPClient();
             client.run();
 
-            Message message = new Message();
 
-            message.createMessage();
-            message.writeToFile();
     }
 
 }

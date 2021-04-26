@@ -67,8 +67,6 @@ public class TCPServer {
             System.out.println("Client says: " + messageClient);
             messageServer = keyboardReader.readLine();
 
-            //System.out.println(messageServer);
-
 
             /*** send to client ***/
             ps.println(messageServer);
@@ -88,11 +86,6 @@ public class TCPServer {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         TCPServer server = new TCPServer();
         server.run();
-
-        Message message = new Message();
-
-        message.createMessage();
-        message.writeToFile();
 
 
     }
