@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Scanner;
 
@@ -27,13 +28,13 @@ public class Message {
     private String topic;
     private String body;
     private int contents;
+    private String messageID;
 
 
     /**
      * Constructor
      */
-    public Message() throws IOException {
-    }
+    public Message() throws IOException { }
 
     /*** to read data from the keyboard ***/
     BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
@@ -79,8 +80,6 @@ public class Message {
             break;
         }
 
-        /*** Generate SHA-256 sum of the message ***/
-        //TODO: put the id generation here?
     }
 
     /*** generates the message id and writes the message to a text file ***/
@@ -103,6 +102,7 @@ public class Message {
         messageDigest.digest();
 
         /*** write to file ***/
+        messageID = toHexString(messageDigest.digest());
         printWriter.println("Message-ID: SHA-256 " + toHexString(messageDigest.digest()) );
         printWriter.println("Time-sent: " + unixTime);
         printWriter.println("From: " + from);
@@ -112,6 +112,18 @@ public class Message {
         printWriter.println("Contents: " + contents);
         printWriter.println(body);
         printWriter.close();
+
+    }
+
+    public void writeToDatabase(){
+
+        // PREPARE QUERY //
+        String query = "INSERT INTO PoliteMessaging (MessageID, TimeSent, Origin, Recipient, Topic, Subject, Contents, Body) VALUES (\"" + messageID + "\", \"" + unixTime + "\", \"" + from + "\", \"" + to + "\", \"" + topic + "\", \"" + subject  + "\", \"" + contents  + "\", \"" + body + "\");";
+
+        // EXECUTE //
+        Database.write(query, Database.connect());
+
+        // CATCH EXCEPTION ??? //
     }
 
     /*** to visualize the hash ***/
@@ -138,6 +150,7 @@ public class Message {
 
         message.createMessage();
         message.writeToFile();
+        message.writeToDatabase();
 
     }
 }

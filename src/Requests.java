@@ -47,7 +47,7 @@ public class Requests {
         // GET? //
         if ("get".equals(request)){
             // take the SHA-256 sum
-            // search through database for hash
+            // search through database for hash -> look at JobHistory in OHASTA
             // if not found:
             System.out.println("SORRY");
             // if found:
