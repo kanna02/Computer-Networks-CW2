@@ -115,6 +115,9 @@ public class Message {
 
     }
 
+    /***
+     * Method to add a message to the database.
+     */
     public void writeToDatabase(){
 
         // PREPARE QUERY //
@@ -123,7 +126,20 @@ public class Message {
         // EXECUTE //
         Database.write(query, Database.connect());
 
-        // CATCH EXCEPTION ??? //
+    }
+
+    /**
+     * Method to delete a message.
+     * @param id Message id that user will enter to delete that message
+     * @throws SQLException
+     */
+    public void delete(String id) throws SQLException{
+
+        // PREPARE QUERY //
+        String query = "DELETE FROM PoliteMessaging WHERE MessageID = \"" + id + "\";" ;
+
+        // EXECUTE //
+        Database.write(query, Database.connect());
     }
 
     /*** to visualize the hash ***/
@@ -151,6 +167,7 @@ public class Message {
         message.createMessage();
         message.writeToFile();
         message.writeToDatabase();
+
 
     }
 }
