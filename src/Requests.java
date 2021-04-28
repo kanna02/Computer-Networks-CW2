@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
+import java.util.ArrayList;
 
 /**
  * A class for defining requests.
@@ -16,9 +17,9 @@ public class Requests {
 
         // PROTOCOL? //
         if ("protocol".equals(request)) {
-            // PROTOCOL? //
+
             System.out.print("Enter version: ");
-            int version = System.in.read();
+            int version = keyboardReader.read();
 
             System.out.println("Enter identifier: ");
             String identifier = keyboardReader.readLine();
@@ -33,6 +34,8 @@ public class Requests {
         }
         // LIST? //
         if ("list".equals(request)){
+            long since = keyboardReader.read();
+            int headers = keyboardReader.read();
             // take since (time)
             // take headers (int)
             // if headers > 0
@@ -44,22 +47,51 @@ public class Requests {
             // output hash of every found message
         }
 
-        // GET? //
-        if ("get".equals(request)){
-            // take the SHA-256 sum
-            // search through database for hash -> look at JobHistory in OHASTA
-            // if not found:
-            System.out.println("SORRY");
-            // if found:
-            System.out.println("Found");
-            // print message
-        }
-
 
         // BYE? //
         if ("bye".equals(request)){
+            System.out.println("You will now be disconnected from the server, BYE!");
             // close socket
+
         }
+
+    }
+
+    /*** GET? request ***/
+    public static void get(String hash){
+        // PREPARE QUERY //
+        String query = "SELECT * FROM PoliteMessaging WHERE MessageID = \"" + hash + "\";";
+
+        // EXECUTE //
+        int count = 0;
+        ArrayList<ArrayList<String>> resultSet = Database.read(query, Database.connect());
+        for (ArrayList<String> result : resultSet) {
+            count += 1;
+
+            // print message
+            if (count != 0) {
+                System.out.println("FOUND");
+                System.out.println("Message-id: SHA-256 " + result.get(0));
+                System.out.println("Time-sent: " + result.get(1));
+                System.out.println("From: " + result.get(2));
+                if (!result.get(3).isEmpty()) {
+                    System.out.println("To: " + result.get(3));
+                }
+                if (!result.get(4).isEmpty()) {
+                    System.out.println("Topic: " + result.get(4));
+                }
+                if (!result.get(5).isEmpty()) {
+                    System.out.println("Subject: " + result.get(5));
+                }
+                System.out.println("Contents: " + result.get(6));
+                System.out.println(result.get(7));
+                System.out.println('\n');
+            }
+        }
+        if (count == 0) {
+            System.out.println("SORRY");
+        }
+
 
     }
 

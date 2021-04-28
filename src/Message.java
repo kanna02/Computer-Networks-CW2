@@ -82,6 +82,7 @@ public class Message {
 
     }
 
+    //TODO: hash does not work -> every message has same hash
     /*** generates the message id and writes the message to a text file ***/
     public void writeToFile() throws NoSuchAlgorithmException {
         /*** Generate SHA-256 sum of the message ***/
@@ -160,14 +161,14 @@ public class Message {
         return hexString.toString();
     }
 
-    /*** to run the program ***/
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        Message message = new Message();
-
-        message.createMessage();
-        message.writeToFile();
-        message.writeToDatabase();
-
-
-    }
+//    /*** to run the program ***/
+//    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+//        Message message = new Message();
+//
+//        message.createMessage();
+//        message.writeToFile();
+//        message.writeToDatabase();
+//
+//
+//    }
 }

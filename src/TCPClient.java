@@ -42,7 +42,6 @@ public class TCPClient {
 
 //            System.out.println("String array: " + Arrays.toString(splits));
 
-            // TODO: repetitive?
             //converts the string elements to bytes and adds to byte array ipAddr
             byte x1,x2,x3,x4;
             x1 = Byte.parseByte(splits[0]);
@@ -65,8 +64,8 @@ public class TCPClient {
             Socket clientSocket = new Socket(addr,port);
             System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
 
-            /*** define protocol ***/
-            Requests.request("protocol");
+//            /*** define protocol ***/
+//            Requests.request("protocol");
 
             /*** to send data to the server ***/
             DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
@@ -77,37 +76,62 @@ public class TCPClient {
             /*** to read data from the keyboard ***/
             BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
 
-            /** output what server says **/
-            String messageClient, messageServer;
-            while (true) {
-                messageClient = keyboardReader.readLine();
+            // to see if program runs  //
 
-                //TODO: fix this it doesnt work
-                if (messageClient == "Message") {
+            System.out.println("Press 1 to write a message" + "\n" + "Press 2 to write to server" + "\n" + "Press 3 to make a request");
+            String entry = keyboardReader.readLine();
 
-                    Message message = new Message();
-                    message.createMessage();
-                    message.writeToFile();
+            /** write and save a message **/
+            if (entry.equals("1")  ){
+
+                Message message = new Message();
+                message.createMessage();
+                message.writeToFile();
+                message.writeToDatabase();
+
+                System.out.println("Your message has been created and saved to the file messages.txt");
+            }
+            /** chat to server **/
+            else if (entry.equals("2") ) {
+
+                /** output what server says **/
+                String messageClient, messageServer;
+                while (true) {
+                    messageClient = keyboardReader.readLine();
+
+                    if (messageClient == null) {
+                        break;
+                    }
+
+                    /*** send to the server ***/
+                    sendData.writeBytes(messageClient + "\n");
+
+                    /*** receive from the server ***/
+                    messageServer = readData.readLine();
+
+                    System.out.println(messageClient);
+                    System.out.println("Server says: " + messageServer);
+
                 }
+            }
+            /** make requests **/
+            else if (entry.equals("3")) {
 
+                System.out.println("Possible requests: TIME?, BYE!, GET?");
 
-                if (messageClient == null) {
-                    break;
-                }
+                System.out.print("Enter your request: ");
+                String requestEntry = scanner.next();
 
-                /*** send to the server ***/
-                sendData.writeBytes(messageClient + "\n");
-
-                /*** receive from the server ***/
-                messageServer = readData.readLine();
-
-                //TODO: doesn't work
-                if (messageServer == "TIME?") {
+                if (requestEntry.equals("TIME?")) {
                     Requests.request("time");
                 }
-
-                System.out.println(messageClient);
-                System.out.println("Server says: " + messageServer);
+                else if (requestEntry.equals("BYE!")) {
+                    Requests.request("bye");
+                }
+                else if (requestEntry.equals("GET?")) {
+                    String hash = scanner.next();
+                    Requests.get(hash);
+                }
 
             }
 
