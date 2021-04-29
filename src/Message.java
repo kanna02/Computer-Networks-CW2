@@ -135,13 +135,15 @@ public class Message {
      * @param id Message id that user will enter to delete that message
      * @throws SQLException
      */
-    public void delete(String id) throws SQLException{
+    public static void delete(String id) throws SQLException{
 
         // PREPARE QUERY //
         String query = "DELETE FROM PoliteMessaging WHERE MessageID = \"" + id + "\";" ;
 
         // EXECUTE //
         Database.write(query, Database.connect());
+
+        System.out.println("Deleted successfully");
     }
 
     /*** to visualize the hash ***/

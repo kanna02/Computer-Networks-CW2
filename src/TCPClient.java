@@ -7,6 +7,7 @@
 import java.io.*;
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 /***
@@ -85,7 +86,7 @@ public class TCPClient {
             /** make requests **/
             else if (entry.equals("3")) {
 
-                System.out.println("Possible requests: TIME?, BYE!, GET?, LIST?");
+                System.out.println("Possible requests: TIME?, BYE!, GET?, LIST?, DELETE");
 
                 System.out.print("Enter your request: ");
                 String requestEntry = scanner.next();
@@ -107,7 +108,10 @@ public class TCPClient {
 
                     Requests.list(since, headers);
                 }
-
+                else if (requestEntry.equals("DELETE")) {
+                    String hash = scanner.next();
+                    Message.delete(hash);
+                }
                 else {
                     System.out.println("The request you have entered is not valid");
                 }
@@ -125,6 +129,8 @@ public class TCPClient {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 
