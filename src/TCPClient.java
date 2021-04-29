@@ -36,8 +36,6 @@ public class TCPClient {
             String input = scanner.next();
             String[] splits = input.split("\\.");
 
-//            System.out.println("String array: " + Arrays.toString(splits));
-
             //converts the string elements to bytes and adds to byte array ipAddr
             byte x1,x2,x3,x4;
             x1 = Byte.parseByte(splits[0]);
@@ -48,8 +46,6 @@ public class TCPClient {
 
             //creates IP address out of byte array
             InetAddress addr = InetAddress.getByAddress("Localhost",ipAddr);
-
-//            System.out.println("Byte array: " + Arrays.toString(addr.getAddress()));
 
             /** get port from user input**/
             System.out.print("Enter port number: ");
@@ -89,7 +85,7 @@ public class TCPClient {
             /** make requests **/
             else if (entry.equals("3")) {
 
-                System.out.println("Possible requests: TIME?, BYE!, GET?");
+                System.out.println("Possible requests: TIME?, BYE!, GET?, LIST?");
 
                 System.out.print("Enter your request: ");
                 String requestEntry = scanner.next();
@@ -104,6 +100,16 @@ public class TCPClient {
                 else if (requestEntry.equals("GET?")) {
                     String hash = scanner.next();
                     Requests.get(hash);
+                }
+                else if (requestEntry.equals("LIST?")) {
+                    long since = scanner.nextLong();
+                    int headers = scanner.nextInt(); // to count the headers
+
+                    Requests.list(since, headers);
+                }
+
+                else {
+                    System.out.println("The request you have entered is not valid");
                 }
 
             }
@@ -138,6 +144,7 @@ public class TCPClient {
         while (true) {
             messageClient = keyboardReader.readLine();
 
+
             if (messageClient == null) {
                 break;
             }
@@ -148,7 +155,7 @@ public class TCPClient {
             /*** receive from the server ***/
             messageServer = readData.readLine();
 
-            System.out.println(messageClient);
+            //System.out.println(messageClient);
             System.out.println("Server says: " + messageServer);
         }
 

@@ -1,0 +1,37 @@
+this holds the original chat method:
+
+public void chat(Socket clientSocket) throws IOException {
+
+        /*** to send data to the server ***/
+        DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
+
+        /*** to read data coming from the server ****/
+        BufferedReader readData = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+        /*** to read data from the keyboard ***/
+        BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
+
+        /** output what server says **/
+        String messageClient, messageServer;
+        while (true) {
+            messageClient = keyboardReader.readLine();
+
+            if (messageClient == null) {
+                break;
+            }
+
+            /*** send to the server ***/
+            sendData.writeBytes(messageClient + "\n");
+
+            /*** receive from the server ***/
+            messageServer = readData.readLine();
+
+            System.out.println(messageClient);
+            System.out.println("Server says: " + messageServer);
+        }
+
+        /*** close connections ***/
+        sendData.close();
+        readData.close();
+        keyboardReader.close();
+    }
