@@ -1,22 +1,20 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Scanner;
-//TODO: test if GET? works when some headers are null
-//TODO: add LIST? request
+
 /**
- * A class for defining requests.
+ * A class for defining requests with their responses.
  */
 public class Requests {
 
-
-    /*** PROTOCOL? request ***/
+    /**
+     * PROTOCOL? request.
+     * @throws IOException
+     */
     public static void protocol () throws IOException {
 
-        /*** to read data from the keyboard ***/
         Scanner scanner = new Scanner(System.in);
 
         int version = scanner.nextInt();
@@ -25,19 +23,29 @@ public class Requests {
         System.out.println("PROTOCOL? " + version + " " + identifier);
     }
 
-    /*** TIME? request ***/
+    /***
+     * TIME? request.
+     */
     public static void time () {
         long unixTime = Instant.now().getEpochSecond();
         System.out.println("NOW " + unixTime);
     }
 
-    /*** BYE! request ***/
+    /***
+     * BYE! request.
+     * @param socket client/server socket to be closed
+     * @throws IOException
+     */
     public static void bye (Socket socket) throws IOException {
         System.out.println("BYE!");
         socket.close();
     }
 
-    /*** LIST? request ***/
+    /***
+     * LIST? request.
+     * @param since time since when message shall be selected
+     * @param headers amount of headers used to look for message
+     */
     public static void list(long since, int headers) {
 
         // PREPARE ORIGINAL QUERY //
@@ -54,13 +62,14 @@ public class Requests {
                 // get headerType and content from user input
                 Scanner scanner = new Scanner(System.in);
                 String entry = scanner.nextLine();
-                String[] header = entry.split("\\:+\\s"); // split entry by ": "
+
+                // split entry by ": "
+                String[] header = entry.split("\\:+\\s");
 
                 String headerType = header[0];
                 String content = header[1];
 
                 // PREPARE REST OF QUERY //
-
                 if (headerType.equals("Topic")) {
                     query = query + " AND Topic=" + "\'" + content + "\'";
 
@@ -86,41 +95,51 @@ public class Requests {
 
             // EXECUTE //
             ArrayList<ArrayList<String>> resultSet = Database.read(query, Database.connect());
+
+            // count messages found
             for (ArrayList<String> result : resultSet) {
                 count += 1;
             }
-
             if (count == 0) {
                 System.out.println("No messages found");
-            } else { // print ids of found messages
+            }
 
+            // print reply (number of messages found, ids of found messages)
+            else {
                 System.out.println("MESSAGES " + count);
                 for(int i=0; i < resultSet.size(); i++){
                     String idArray = resultSet.get(i).toString(); //gets the element from the arraylist
                     String oneBracket = idArray.replace("[",""); //removes one square bracket
                     String id = oneBracket.replace("]",""); //removes other square bracket
-                    System.out.println(id);
+                    System.out.println(id); //prints clean element
                 }
             }
         }
+        // if time entered is in future
         else { System.out.println("You have entered a time in the future"); }
     }
 
-    /*** GET? request ***/
+    /***
+     * GET? request.
+     * @param hash message ID
+     */
     public static void get (String hash){
 
         // PREPARE QUERY //
         String query = "SELECT * FROM PoliteMessaging WHERE MessageID = \"" + hash + "\";";
 
         // EXECUTE //
-        int count = 0;
         ArrayList<ArrayList<String>> resultSet = Database.read(query, Database.connect());
+
+        // count found messages
+        int count = 0;
         for (ArrayList<String> result : resultSet) {
             count += 1;
 
             // reply if message found -> print message
             if (count != 0) {
                 System.out.println("FOUND");
+
                 System.out.println("Message-id: SHA-256 " + result.get(0));
                 System.out.println("Time-sent: " + result.get(1));
                 System.out.println("From: " + result.get(2));
@@ -142,7 +161,6 @@ public class Requests {
         if (count == 0) {
             System.out.println("SORRY");
         }
-
 
     }
 

@@ -57,7 +57,7 @@ public class TCPClient {
             System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
 
             /*** define protocol ***/
-            System.out.print("PROTOCOL?");
+            System.out.print("PROTOCOL? ");
             Requests.protocol();
 
             /*** to read data from the keyboard ***/
