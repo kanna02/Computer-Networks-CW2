@@ -7,11 +7,7 @@
 import java.io.*;
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 
 /***
  * A class to create a TCP Client.
@@ -64,14 +60,9 @@ public class TCPClient {
             Socket clientSocket = new Socket(addr,port);
             System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
 
-//            /*** define protocol ***/
-//            Requests.request("protocol");
-
-            /*** to send data to the server ***/
-            DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
-
-            /*** to read data coming from the server ****/
-            BufferedReader readData = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            /*** define protocol ***/
+            System.out.print("PROTOCOL?");
+            Requests.protocol();
 
             /*** to read data from the keyboard ***/
             BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
@@ -89,30 +80,11 @@ public class TCPClient {
                 message.writeToFile();
                 message.writeToDatabase();
 
-                System.out.println("Your message has been created and saved to the file messages.txt");
+                System.out.println("Your message has been created");
             }
             /** chat to server **/
             else if (entry.equals("2") ) {
-
-                /** output what server says **/
-                String messageClient, messageServer;
-                while (true) {
-                    messageClient = keyboardReader.readLine();
-
-                    if (messageClient == null) {
-                        break;
-                    }
-
-                    /*** send to the server ***/
-                    sendData.writeBytes(messageClient + "\n");
-
-                    /*** receive from the server ***/
-                    messageServer = readData.readLine();
-
-                    System.out.println(messageClient);
-                    System.out.println("Server says: " + messageServer);
-
-                }
+                chat(clientSocket);
             }
             /** make requests **/
             else if (entry.equals("3")) {
@@ -123,10 +95,11 @@ public class TCPClient {
                 String requestEntry = scanner.next();
 
                 if (requestEntry.equals("TIME?")) {
-                    Requests.request("time");
+                    Requests.time();
+                    chat(clientSocket); //TODO: change -> send data to server
                 }
                 else if (requestEntry.equals("BYE!")) {
-                    Requests.request("bye");
+                    Requests.bye(clientSocket);
                 }
                 else if (requestEntry.equals("GET?")) {
                     String hash = scanner.next();
@@ -136,11 +109,8 @@ public class TCPClient {
             }
 
             /*** close connections ***/
-            sendData.close();
-            readData.close();
             keyboardReader.close();
-            clientSocket.close();
-
+//            clientSocket.close();
         }
         catch(UnknownHostException ex) {
             ex.printStackTrace();
@@ -152,13 +122,48 @@ public class TCPClient {
         }
     }
 
+    public void chat(Socket clientSocket) throws IOException {
+
+        /*** to send data to the server ***/
+        DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
+
+        /*** to read data coming from the server ****/
+        BufferedReader readData = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+        /*** to read data from the keyboard ***/
+        BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
+
+        /** output what server says **/
+        String messageClient, messageServer;
+        while (true) {
+            messageClient = keyboardReader.readLine();
+
+            if (messageClient == null) {
+                break;
+            }
+
+            /*** send to the server ***/
+            sendData.writeBytes(messageClient + "\n");
+
+            /*** receive from the server ***/
+            messageServer = readData.readLine();
+
+            System.out.println(messageClient);
+            System.out.println("Server says: " + messageServer);
+        }
+
+        /*** close connections ***/
+        sendData.close();
+        readData.close();
+        keyboardReader.close();
+    }
+
 
 
     /*** to run the program ***/
         public static void main(String[] args) {
             TCPClient client = new TCPClient();
             client.run();
-
 
     }
 

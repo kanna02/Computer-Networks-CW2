@@ -88,7 +88,7 @@ public class Message {
         BigInteger time_big = new BigInteger(String.valueOf(unixTime)); // time to big int
         BigInteger contents_big = new BigInteger(String.valueOf(contents)); // contents to big int
 
-        // string headers
+        // add headers and body to hash
         messageDigest.update(time_big.toByteArray()); // add time header as byte array
         messageDigest.update(from.getBytes(StandardCharsets.UTF_8));
         messageDigest.update(to.getBytes(StandardCharsets.UTF_8));
@@ -97,16 +97,13 @@ public class Message {
         messageDigest.update(contents_big.toByteArray()); // add contents header as byte array
         messageDigest.update(body.getBytes(StandardCharsets.UTF_8));
 
+        // generate hash
         messageID = toHexString(messageDigest.digest());
-
-
     }
 
     /*** writes the message to a text file ***/
     public void writeToFile() throws NoSuchAlgorithmException {
 
-
-        /*** write to file ***/
         printWriter.println("Message-ID: SHA-256 " + messageID );
         printWriter.println("Time-sent: " + unixTime);
         printWriter.println("From: " + from);
