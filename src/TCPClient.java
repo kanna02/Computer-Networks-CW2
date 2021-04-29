@@ -155,7 +155,7 @@ public class TCPClient {
 
 
     /*** to run the program ***/
-        public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+        public static void main(String[] args) {
             TCPClient client = new TCPClient();
             client.run();
 

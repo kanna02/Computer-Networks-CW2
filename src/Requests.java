@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.ArrayList;
-
+//TODO: test if GET? works when some headers are null
 /**
  * A class for defining requests.
  */
@@ -27,31 +27,17 @@ public class Requests {
             System.out.println("PROTOCOL? " + version + " " + identifier);
         }
 
-        // TIME? this is a time reply
+        // TIME? //
         if ("time".equals(request)){
             unixTime = Instant.now().getEpochSecond();
             System.out.println("NOW " + unixTime);
-        }
-        // LIST? //
-        if ("list".equals(request)){
-            long since = keyboardReader.read();
-            int headers = keyboardReader.read();
-            // take since (time)
-            // take headers (int)
-            // if headers > 0
-                // take header
-            // look in database for messages with that time header
-            int count = 0;
-            // increase count for every message found
-            System.out.println("COUNT " + count);
-            // output hash of every found message
         }
 
 
         // BYE? //
         if ("bye".equals(request)){
             System.out.println("You will now be disconnected from the server, BYE!");
-            // close socket
+            //TODO: close socket
 
         }
 

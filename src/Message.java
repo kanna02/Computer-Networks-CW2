@@ -34,7 +34,7 @@ public class Message {
     /**
      * Constructor
      */
-    public Message() throws IOException { }
+    public Message() throws IOException, NoSuchAlgorithmException { }
 
     /*** to read data from the keyboard ***/
     BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
@@ -42,6 +42,9 @@ public class Message {
     /*** to save message to a text file ***/
     FileWriter fileWriter = new FileWriter("messages.txt");
     PrintWriter printWriter = new PrintWriter(fileWriter);
+
+    MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
 
 
     public void createMessage() throws IOException, NoSuchAlgorithmException {
@@ -80,31 +83,31 @@ public class Message {
             break;
         }
 
-    }
-
-    //TODO: hash does not work -> every message has same hash
-    /*** generates the message id and writes the message to a text file ***/
-    public void writeToFile() throws NoSuchAlgorithmException {
         /*** Generate SHA-256 sum of the message ***/
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
         BigInteger time_big = new BigInteger(String.valueOf(unixTime)); // time to big int
-        BigInteger contents_big = new BigInteger(String.valueOf(contents)); // contens to big int
+        BigInteger contents_big = new BigInteger(String.valueOf(contents)); // contents to big int
 
         // string headers
-        messageDigest.update(from.getBytes(StandardCharsets.UTF_8));
-        messageDigest.update(topic.getBytes(StandardCharsets.UTF_8));
-        messageDigest.update(to.getBytes(StandardCharsets.UTF_8));
-        messageDigest.update(subject.getBytes(StandardCharsets.UTF_8));
-        messageDigest.update(body.getBytes(StandardCharsets.UTF_8));
         messageDigest.update(time_big.toByteArray()); // add time header as byte array
+        messageDigest.update(from.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(to.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(topic.getBytes(StandardCharsets.UTF_8));
+        messageDigest.update(subject.getBytes(StandardCharsets.UTF_8));
         messageDigest.update(contents_big.toByteArray()); // add contents header as byte array
+        messageDigest.update(body.getBytes(StandardCharsets.UTF_8));
 
-        messageDigest.digest();
+        messageID = toHexString(messageDigest.digest());
+
+
+    }
+
+    /*** writes the message to a text file ***/
+    public void writeToFile() throws NoSuchAlgorithmException {
+
 
         /*** write to file ***/
-        messageID = toHexString(messageDigest.digest());
-        printWriter.println("Message-ID: SHA-256 " + toHexString(messageDigest.digest()) );
+        printWriter.println("Message-ID: SHA-256 " + messageID );
         printWriter.println("Time-sent: " + unixTime);
         printWriter.println("From: " + from);
         if (! to.isEmpty()) {printWriter.println("To: " + to); } // 0..1
@@ -161,14 +164,14 @@ public class Message {
         return hexString.toString();
     }
 
-//    /*** to run the program ***/
-//    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-//        Message message = new Message();
-//
-//        message.createMessage();
-//        message.writeToFile();
-//        message.writeToDatabase();
-//
-//
-//    }
+    /*** to run the program ***/
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+        Message message = new Message();
+
+        message.createMessage();
+        message.writeToFile();
+        message.writeToDatabase();
+
+
+    }
 }
