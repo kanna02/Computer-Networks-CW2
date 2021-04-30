@@ -23,12 +23,12 @@ public class Main {
         frame = new JFrame("Polite Messaging");
         Terminal.setFrame(frame);
         startConnection = new StartConnection().getStartConnectionPanel();
-        test = new StartMenu().getStartMenuPanel();
+        test = new ViewMessages().getViewMessagesPanel();
 
 
         frame.setContentPane(test);
         frame.pack();
-        frame.setSize(700,600);
+        frame.setSize(1200,600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

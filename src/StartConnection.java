@@ -53,7 +53,7 @@ public class StartConnection {
                     Socket clientSocket = new Socket(addr, Integer.parseInt(port));
                     message.setText("Just connected to " + clientSocket.getRemoteSocketAddress());
 
-                    //TODO: go to start menu panel
+                    Terminal.nextPanel("start", startConnectionPanel);
                     //TODO: PROTOCOL? request
 
                 } catch (IOException ioException) {

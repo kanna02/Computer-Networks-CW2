@@ -2,9 +2,12 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="StartMenu">
   <grid id="27dc6" binding="startMenuPanel" layout-manager="GridBagLayout">
     <constraints>
-      <xy x="20" y="20" width="511" height="426"/>
+      <xy x="20" y="20" width="700" height="600"/>
     </constraints>
-    <properties/>
+    <properties>
+      <minimumSize width="700" height="600"/>
+      <preferredSize width="700" height="600"/>
+    </properties>
     <border type="none"/>
     <children>
       <component id="c186c" class="javax.swing.JLabel" binding="title">
