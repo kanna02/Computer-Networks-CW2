@@ -123,7 +123,6 @@ public class Message {
 
         // PREPARE QUERY //
         String query = "INSERT INTO PoliteMessaging (MessageID, TimeSent, Origin, Recipient, Topic, Subject, Contents, Body) VALUES (\"" + messageID + "\", \"" + unixTime + "\", \"" + from + "\", \"" + to + "\", \"" + topic + "\", \"" + subject  + "\", \"" + contents  + "\", \"" + body + "\");";
-        System.out.println(query);
 
         // EXECUTE //
         Database.write(query, Database.connect());

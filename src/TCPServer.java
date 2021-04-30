@@ -43,6 +43,10 @@ public class TCPServer {
         Socket clientSocket = serverSocket.accept();
         System.out.println("Client connected!");
 
+        /*** define protocol ***/
+        System.out.print("PROTOCOL? ");
+        Requests.protocol(clientSocket);
+
 
         /*** to send data to the client ***/
         PrintStream ps = new PrintStream(clientSocket.getOutputStream());
@@ -60,6 +64,7 @@ public class TCPServer {
 
             /*** read from client ***/
             messageClient = clientReader.readLine();
+
             if (messageClient == null) {
                 break;
             }
@@ -76,8 +81,8 @@ public class TCPServer {
 
 
         /*** close connections ***/
-        clientSocket.close();
-        serverSocket.close();
+//        clientSocket.close();
+//        serverSocket.close();
         clientReader.close();
         keyboardReader.close();
     }

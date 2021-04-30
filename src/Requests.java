@@ -1,4 +1,6 @@
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,31 +15,41 @@ public class Requests {
      * PROTOCOL? request.
      * @throws IOException
      */
-    public static void protocol () throws IOException {
+    public static void protocol (Socket socket) throws IOException {
 
         Scanner scanner = new Scanner(System.in);
 
         int version = scanner.nextInt();
         String identifier = scanner.next();
 
-        System.out.println("PROTOCOL? " + version + " " + identifier);
+//        System.out.println("PROTOCOL? " + version + " " + identifier);
+
+        // send to other peer
+        String reply = "PROTOCOL? " + version + " " + identifier;
+        DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
+        sendData.writeBytes(reply);
     }
 
     /***
      * TIME? request.
      */
-    public static void time () {
+    public static void time (Socket socket) throws IOException {
         long unixTime = Instant.now().getEpochSecond();
-        System.out.println("NOW " + unixTime);
+        String reply = "NOW " + unixTime;
+       // System.out.println("NOW " + unixTime);
+
+        DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
+        sendData.writeBytes(reply);
     }
 
+    //TODO: both peers must close the sockets
     /***
      * BYE! request.
      * @param socket client/server socket to be closed
      * @throws IOException
      */
     public static void bye (Socket socket) throws IOException {
-        System.out.println("BYE!");
+//        System.out.println("BYE!");
         socket.close();
     }
 
@@ -46,7 +58,10 @@ public class Requests {
      * @param since time since when message shall be selected
      * @param headers amount of headers used to look for message
      */
-    public static void list(long since, int headers) {
+    public static void list(long since, int headers, Socket socket) throws IOException {
+
+        //output sent to other peer
+        String reply;
 
         // PREPARE ORIGINAL QUERY //
         String query = "SELECT MessageID FROM PoliteMessaging WHERE TimeSent>=\'" + since + "\'";
@@ -101,22 +116,30 @@ public class Requests {
                 count += 1;
             }
             if (count == 0) {
-                System.out.println("No messages found");
+                reply = "No messages found";
+//                System.out.println("No messages found");
             }
 
             // print reply (number of messages found, ids of found messages)
             else {
-                System.out.println("MESSAGES " + count);
+                reply = "MESSAGES " + count;
+//                System.out.println("MESSAGES " + count);
                 for(int i=0; i < resultSet.size(); i++){
                     String idArray = resultSet.get(i).toString(); //gets the element from the arraylist
                     String oneBracket = idArray.replace("[",""); //removes one square bracket
                     String id = oneBracket.replace("]",""); //removes other square bracket
-                    System.out.println(id); //prints clean element
+                    System.out.println(id); //prints clean element //TODO: test if works
                 }
             }
         }
         // if time entered is in future
-        else { System.out.println("You have entered a time in the future"); }
+        else {
+            reply = "You have entered a time in the future";
+//            System.out.println("You have entered a time in the future");
+        }
+        DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
+        sendData.writeBytes(reply);
+
     }
 
     /***
