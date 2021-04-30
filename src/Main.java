@@ -5,6 +5,7 @@ public class Main {
 
     private static JFrame frame;
     private static JPanel startConnection;
+    private static JPanel test;
 
     /**
      * @param args the command line arguments
@@ -22,9 +23,10 @@ public class Main {
         frame = new JFrame("Polite Messaging");
         Terminal.setFrame(frame);
         startConnection = new StartConnection().getStartConnectionPanel();
+        test = new StartMenu().getStartMenuPanel();
 
 
-        frame.setContentPane(startConnection);
+        frame.setContentPane(test);
         frame.pack();
         frame.setSize(700,600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

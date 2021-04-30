@@ -10,17 +10,17 @@ public class Terminal {
 
     public static void nextPanel(String next, JPanel panel) {
 
-//        // IF NEXT PANEL IS START MENU //
-//        if ("start".equals(next)) {
-//
-//            // REMOVE CURRENT PANEL //
-//            Container contentPane = removePanel(panel);
-//
-//            // ADD NEW PANEL //
-//            panel = new StartMenu().getStartMenuPanel();
-//            addPanel(panel, contentPane);
-//
-//        }
+        // IF NEXT PANEL IS START MENU //
+        if ("start".equals(next)) {
+
+            // REMOVE CURRENT PANEL //
+            Container contentPane = removePanel(panel);
+
+            // ADD NEW PANEL //
+            panel = new StartMenu().getStartMenuPanel();
+            addPanel(panel, contentPane);
+
+        }
     }
 
     /**
