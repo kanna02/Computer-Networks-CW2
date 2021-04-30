@@ -75,7 +75,7 @@ public class TCPClient {
                 if (entry.equals("1")) {
 
                     Message message = new Message();
-                    message.createMessage();
+//                    message.createMessage();
                     message.writeToFile();
                     message.writeToDatabase();
 

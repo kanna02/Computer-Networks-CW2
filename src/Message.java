@@ -46,42 +46,45 @@ public class Message {
     MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
 
-
-    public void createMessage() throws IOException, NoSuchAlgorithmException {
+    public void createMessage(String from, String to, String topic, String subject, int contents ,String body) throws IOException, NoSuchAlgorithmException {
 
         /*** time ***/
         unixTime = Instant.now().getEpochSecond();
 
         /*** from ***/
-        System.out.print("Enter origin: ");
-        from = keyboardReader.readLine();
+//        System.out.print("Enter origin: ");
+//        from = keyboardReader.readLine();
+//        from = NewMessage.getFrom();
 
         /*** to (recipient) ***/
-        System.out.print("Enter recipient: ");
-        to = keyboardReader.readLine();
+//        System.out.print("Enter recipient: ");
+//        to = keyboardReader.readLine();
+//        to = NewMessage.getTo();
 
         /*** topic ***/
-        System.out.print("Enter topic: ");
-        topic = keyboardReader.readLine();
+//        System.out.print("Enter topic: ");
+//        topic = keyboardReader.readLine();
+//        topic = NewMessage.getTopic();
 
         /*** subject ***/
-        System.out.print("Enter Subject: ");
-        subject = keyboardReader.readLine();
+//        System.out.print("Enter Subject: ");
+//        subject = keyboardReader.readLine();
+//        subject = NewMessage.getSubject();
 
         /*** body (includes contents) ***/
-        System.out.println("Enter message. Press TAB and then ENTER to finish");
-        Scanner scanner = new Scanner(System.in);
-        scanner.useDelimiter("\\t");
-
-        contents = 0;  //contents counter
-
-        while (true) {
-            body = scanner.next();
-            // count lines
-            String[] line = body.split("\n"); //look for new line
-            contents += line.length;
-            break;
-        }
+//        System.out.println("Enter message. Press TAB and then ENTER to finish");
+//        Scanner scanner = new Scanner(System.in);
+//        scanner.useDelimiter("\\t");
+//
+//        contents = 0;  //contents counter
+//
+//        while (true) {
+//            body = scanner.next();
+//            // count lines
+//            String[] line = body.split("\n"); //look for new line
+//            contents += line.length;
+//            break;
+//        }
 
         /*** Generate SHA-256 sum of the message ***/
 
@@ -167,7 +170,7 @@ public class Message {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         Message message = new Message();
 
-        message.createMessage();
+//        message.createMessage();
         message.writeToFile();
         message.writeToDatabase();
 

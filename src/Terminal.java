@@ -21,6 +21,26 @@ public class Terminal {
             addPanel(panel, contentPane);
 
         }
+        // IF NEXT PANEL IS VIEW MESSAGES //
+        else if ("view".equals(next)){
+
+            // REMOVE CURRENT PANEL //
+            Container contentPane = removePanel(panel);
+
+            // ADD NEW PANEL //
+            panel = new ViewMessages().getViewMessagesPanel();
+            addPanel(panel, contentPane);
+        }
+        // IF NEXT PANEL IS NEW MESSAGE
+        else if ("new".equals(next)){
+
+            // REMOVE CURRENT PANEL //
+            Container contentPane = removePanel(panel);
+
+            // ADD NEW PANEL //
+            panel = new NewMessage().getNewMessagePanel();
+            addPanel(panel, contentPane);
+        }
     }
 
     /**

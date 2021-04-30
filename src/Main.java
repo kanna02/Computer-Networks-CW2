@@ -23,7 +23,7 @@ public class Main {
         frame = new JFrame("Polite Messaging");
         Terminal.setFrame(frame);
         startConnection = new StartConnection().getStartConnectionPanel();
-        test = new ViewMessages().getViewMessagesPanel();
+        test = new NewMessage().getNewMessagePanel();
 
 
         frame.setContentPane(test);
