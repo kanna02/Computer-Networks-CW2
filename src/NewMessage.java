@@ -45,7 +45,7 @@ public class NewMessage {
 
                 try {
                     Message message = new Message();
-                    message.createMessage(from, to, topic, subject, contents ,body);
+                    message.createMessage(/*from, to, topic, subject, contents ,body*/);
                     message.writeToDatabase();
 
                 } catch (IOException | NoSuchAlgorithmException ioException) {

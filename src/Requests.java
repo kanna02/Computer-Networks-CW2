@@ -49,7 +49,6 @@ public class Requests {
      * @throws IOException
      */
     public static void bye (Socket socket) throws IOException {
-//        System.out.println("BYE!");
         socket.close();
     }
 
@@ -61,7 +60,7 @@ public class Requests {
     public static void list(long since, int headers, Socket socket) throws IOException {
 
         //output sent to other peer
-        String reply;
+        StringBuilder reply;
 
         // PREPARE ORIGINAL QUERY //
         String query = "SELECT MessageID FROM PoliteMessaging WHERE TimeSent>=\'" + since + "\'";
@@ -116,37 +115,41 @@ public class Requests {
                 count += 1;
             }
             if (count == 0) {
-                reply = "No messages found";
+                reply = new StringBuilder("No messages found");
 //                System.out.println("No messages found");
             }
 
             // print reply (number of messages found, ids of found messages)
             else {
-                reply = "MESSAGES " + count;
+                reply = new StringBuilder("MESSAGES " + count);
 //                System.out.println("MESSAGES " + count);
                 for(int i=0; i < resultSet.size(); i++){
                     String idArray = resultSet.get(i).toString(); //gets the element from the arraylist
                     String oneBracket = idArray.replace("[",""); //removes one square bracket
                     String id = oneBracket.replace("]",""); //removes other square bracket
-                    System.out.println(id); //prints clean element //TODO: test if works
+                    reply.append("\n").append(id); // add found id's to reply
+                    //TODO: server cannot read in multiple lines at once
+
                 }
             }
         }
-        // if time entered is in future
+        // if time (since) entered is in future
         else {
-            reply = "You have entered a time in the future";
-//            System.out.println("You have entered a time in the future");
+            reply = new StringBuilder("You have entered a time in the future");
         }
+        // send the reply to other peer
         DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
-        sendData.writeBytes(reply);
-
+        sendData.writeBytes(reply.toString());
     }
 
     /***
      * GET? request.
      * @param hash message ID
      */
-    public static void get (String hash){
+    public static void get (String hash, Socket socket) throws IOException {
+
+        // output sent to other peer
+        StringBuilder reply ; //TODO: why must this be initialized????
 
         // PREPARE QUERY //
         String query = "SELECT * FROM PoliteMessaging WHERE MessageID = \"" + hash + "\";";
@@ -157,12 +160,14 @@ public class Requests {
         // count found messages
         int count = 0;
         for (ArrayList<String> result : resultSet) {
+
             count += 1;
 
             // reply if message found -> print message
             if (count != 0) {
-                System.out.println("FOUND");
+                reply = new StringBuilder("FOUND");
 
+                //TODO: add this to reply
                 System.out.println("Message-id: SHA-256 " + result.get(0));
                 System.out.println("Time-sent: " + result.get(1));
                 System.out.println("From: " + result.get(2));
@@ -178,12 +183,12 @@ public class Requests {
                 System.out.println("Contents: " + result.get(6));
                 System.out.println(result.get(7));
                 System.out.println('\n');
-            }
+            } else { reply = new StringBuilder("SORRY") ; } // reply if no message found
         }
-        //reply if no message found
-        if (count == 0) {
-            System.out.println("SORRY");
-        }
+
+        // send the reply to other peer
+        DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
+        sendData.writeBytes(reply.toString());
 
     }
 

@@ -1,18 +1,17 @@
 import javax.swing.*;
+import javax.swing.text.View;
 import java.io.IOException;
 
 public class Main {
 
     private static JFrame frame;
-    private static JPanel startConnection;
     private static JPanel test;
+    private static JPanel startConnection;
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException {
-
-
+    public static void main(String[] args) {
         // set look and feel
         try {
             UIManager.setLookAndFeel(
@@ -21,10 +20,10 @@ public class Main {
         catch (UnsupportedLookAndFeelException e) { }
 
         frame = new JFrame("Polite Messaging");
-        Terminal.setFrame(frame);
-        startConnection = new StartConnection().getStartConnectionPanel();
-        test = new NewMessage().getNewMessagePanel();
+//        Terminal.setFrame(frame);
 
+//        startConnection = new StartConnection().getStartConnectionPanel();
+        test = new ViewMessages().getViewMessagesPanel();
 
         frame.setContentPane(test);
         frame.pack();

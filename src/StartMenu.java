@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class StartMenu {
     private JPanel startMenuPanel;
@@ -16,27 +17,28 @@ public class StartMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //TODO: go to panel newMessage
+                Terminal.nextPanel("new",getStartMenuPanel());
 
             }
         });
         viewMessagesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO: go to panel viewMessages
+                Terminal.nextPanel("view", getStartMenuPanel());
 
             }
         });
         chatToPeerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO: go to panel chat
+                Terminal.nextPanel("chat",getStartMenuPanel());
 
             }
         });
         makeARequestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO: go to panel makeRequest
+                Terminal.nextPanel("request",getStartMenuPanel());
 
             }
         });

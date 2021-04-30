@@ -44,12 +44,14 @@ public class TCPServer {
         System.out.println("Client connected!");
 
         /*** define protocol ***/
-        System.out.print("PROTOCOL? ");
-        Requests.protocol(clientSocket);
+//        System.out.print("PROTOCOL? ");
+//        Requests.protocol(clientSocket);
 
 
         /*** to send data to the client ***/
-        PrintStream ps = new PrintStream(clientSocket.getOutputStream());
+//        PrintStream ps = new PrintStream(clientSocket.getOutputStream());
+        DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
+
 
         /*** to read data coming from the client ***/
         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -65,26 +67,50 @@ public class TCPServer {
             /*** read from client ***/
             messageClient = clientReader.readLine();
 
-            if (messageClient == null) {
-                break;
-            }
-
             System.out.println("Client says: " + messageClient);
             messageServer = keyboardReader.readLine();
 
+            if (messageClient == null) {
+                break;
+            }
+            else if (messageClient.equals("BYE!")) {
+//                clientSocket.close();
+                serverSocket.close();
+                clientReader.close();
+                keyboardReader.close();
+                break;
+            }
+
+
+
+
 
             /*** send to client ***/
-            ps.println(messageServer);
+//            ps.println(messageServer);
+            sendData.writeBytes(messageServer + "\n");
+
+//        /** output what client says **/
+//        while (true) {
+//            String messageClient, messageServer;
+//            messageServer = keyboardReader.readLine();
+//
+//            if (messageServer == null) {
+//                break;
+//            }
+//
+//            /*** send to the client ***/
+//            sendData.writeBytes(messageServer + "\n");
+//
+//            /*** receive from the client ***/
+//            messageClient = clientReader.readLine();
+//
+//            //System.out.println(messageClient);
+//            System.out.println("Client says: " + messageClient);
+//        }
 
         }
 
 
-
-        /*** close connections ***/
-//        clientSocket.close();
-//        serverSocket.close();
-        clientReader.close();
-        keyboardReader.close();
     }
 
     /*** run the program ***/

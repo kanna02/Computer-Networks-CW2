@@ -14,6 +14,8 @@ import java.util.Scanner;
  * A class to create a TCP Client.
  */
 public class TCPClient {
+    private static JFrame frame;
+    private static JPanel view;
     /**
      * Initialise a new client. To run the client, call run().
      */
@@ -22,7 +24,7 @@ public class TCPClient {
     /***
      * Runs the client.
      */
-    public void run()   {
+    public void run() {
         try {
 
             /*** get server IP address ***/
@@ -58,24 +60,24 @@ public class TCPClient {
             System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
 
 //            /*** define protocol ***/
-            System.out.print("PROTOCOL? ");
-            Requests.protocol(clientSocket);
+//            System.out.print("PROTOCOL? ");
+//            Requests.protocol(clientSocket);
 
             /*** to read data from the keyboard ***/
             BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
 
             // to see if program runs  //
+            boolean var = true;
+            while (var) {
+            System.out.println("Press 1 to write a message" + "\n" + "Press 2 to write to server" + "\n" + "Press 3 to make a request" + "\n" + "Press 4 to view all messages in the GUI");
+            String entry = keyboardReader.readLine();
 
-            while (true) {
-
-                System.out.println("Press 1 to write a message" + "\n" + "Press 2 to write to server" + "\n" + "Press 3 to make a request");
-                String entry = keyboardReader.readLine();
 
                 /** write and save a message **/
                 if (entry.equals("1")) {
 
                     Message message = new Message();
-//                    message.createMessage();
+                    message.createMessage();
                     message.writeToFile();
                     message.writeToDatabase();
 
@@ -94,56 +96,69 @@ public class TCPClient {
                     System.out.print("Enter your request: ");
                     String requestEntry = scanner.next();
 
-                    if (requestEntry.equals("TIME?")) {
-                        Requests.time(clientSocket);
-                    } else if (requestEntry.equals("BYE!")) {
-                        Requests.bye(clientSocket);
-                        keyboardReader.close();
-                    } else if (requestEntry.equals("GET?")) {
-                        String hash = scanner.next();
-                        Requests.get(hash);
-                    } else if (requestEntry.equals("LIST?")) {
-                        long since = scanner.nextLong();
-                        int headers = scanner.nextInt(); // to count the headers
+                    switch (requestEntry) {
+                        case "TIME?" -> Requests.time(clientSocket);
+                        case "GET?" -> {
+                            String hash = scanner.next();
+                            Requests.get(hash, clientSocket);
+                        }
+                        case "LIST?" -> {
+                            long since = scanner.nextLong();
+                            int headers = scanner.nextInt(); // to count the headers
+                            Requests.list(since, headers, clientSocket);
+                        }
+                        case "DELETE" -> {
+                            String hash = scanner.next();
+                            Message.delete(hash);
 
-                        Requests.list(since, headers, clientSocket);
-                    } else if (requestEntry.equals("DELETE")) {
-                        String hash = scanner.next();
-                        Message.delete(hash);
-                    } else {
-                        System.out.println("The request you have entered is not valid");
+                        }
+                        case "BYE!" -> {
+                            Requests.bye(clientSocket);
+                            keyboardReader.close();
+                            var = false;
+
+                        }
+                        default -> System.out.println("The request you have entered is not valid");
                     }
 
+                } else if (entry.equals("4")) {
+
+                    // set look and feel
+                    try {
+                        UIManager.setLookAndFeel(
+                                new com.jtattoo.plaf.mint.MintLookAndFeel());
+                    } catch (UnsupportedLookAndFeelException e) {
+                    }
+
+                    frame = new JFrame("Polite Messaging");
+                    Terminal.setFrame(frame);
+                    view = new ViewMessages().getViewMessagesPanel();
+
+                    frame.setContentPane(view);
+                    frame.pack();
+                    frame.setSize(1200, 600);
+                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
                 }
-
             }
-        }
 
-        catch(UnknownHostException ex) {
-            ex.printStackTrace();
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+            } catch(IOException | NoSuchAlgorithmException | SQLException ex){
+                ex.printStackTrace();
+            }
+
     }
-
+    /** **/
     public void chat(Socket clientSocket) throws IOException {
 
         /*** to send data to the server ***/
         DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
 
         /*** to read data coming from the server ****/
-        BufferedReader readData = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        BufferedReader serverReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
         /*** to read data from the keyboard ***/
         BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
-//        Scanner keyboardReader = new Scanner(System.in);
-//        keyboardReader.useDelimiter("\\t");
-
 
         /** output what server says **/
         String messageClient, messageServer;
@@ -158,15 +173,15 @@ public class TCPClient {
             sendData.writeBytes(messageClient + "\n");
 
             /*** receive from the server ***/
-            messageServer = readData.readLine();
+            messageServer = serverReader.readLine();
 
             //System.out.println(messageClient);
             System.out.println("Server says: " + messageServer);
         }
 
-//        /*** close connections ***/
+        /*** close connections ***/
         sendData.close();
-        readData.close();
+        serverReader.close();
         keyboardReader.close();
     }
 

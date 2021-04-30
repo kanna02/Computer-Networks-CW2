@@ -34,14 +34,14 @@
           </component>
         </children>
       </scrollpane>
-      <component id="f7841" class="javax.swing.JButton" binding="backButton" default-binding="true">
+      <component id="f7841" class="javax.swing.JButton" binding="refreshButton">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
           <gridbag top="20" left="0" bottom="20" right="0" weightx="1.0" weighty="0.0" ipadx="100" ipady="20"/>
         </constraints>
         <properties>
           <font name="Fira Code" size="16"/>
-          <text value="Back"/>
+          <text value="Refresh"/>
         </properties>
       </component>
     </children>

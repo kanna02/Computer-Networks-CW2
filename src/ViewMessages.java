@@ -8,29 +8,30 @@ public class ViewMessages {
     private JPanel viewMessagesPanel;
     private JLabel title;
     private JTable messageTable;
-    private JButton backButton;
+    private JButton refreshButton;
     String[] header = {"Message-id", "Time-sent", "From", "To", "Topic", "Subject", "Contents", "Body"};
 
     public ViewMessages(){
 
-        backButton.setToolTipText("Press here to go back to the StartMenu");
+        refreshButton.setToolTipText("Press here to refresh the table");
 
-        backButton.addActionListener(new ActionListener() {
+        refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Terminal.nextPanel("start", viewMessagesPanel);
+               Terminal.nextPanel("view",getViewMessagesPanel());
             }
         });
     }
 
     private void createUIComponents() {
-        DefaultTableModel model = new DefaultTableModel(0,4); // create table layout
+        DefaultTableModel model = new DefaultTableModel(0,8); // create table layout
         model.setColumnIdentifiers(header); //set header
 
         messageTable = new JTable(model); //create table object
 
         messageTable.getColumnModel().getColumn(0).setPreferredWidth(500);
         messageTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+        messageTable.getColumnModel().getColumn(6).setPreferredWidth(60);
         messageTable.getColumnModel().getColumn(7).setPreferredWidth(200);
 
 

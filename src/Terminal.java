@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * A class for managing the GUI frames.
@@ -8,7 +9,7 @@ public class Terminal {
 
     private static JFrame frame;
 
-    public static void nextPanel(String next, JPanel panel) {
+    public static void nextPanel(String next, JPanel panel)  {
 
         // IF NEXT PANEL IS START MENU //
         if ("start".equals(next)) {
@@ -39,6 +40,16 @@ public class Terminal {
 
             // ADD NEW PANEL //
             panel = new NewMessage().getNewMessagePanel();
+            addPanel(panel, contentPane);
+        }
+        // IF NEXT PANEL IS REQUEST FORM
+        else if ("request".equals(next)){
+
+            // REMOVE CURRENT PANEL //
+            Container contentPane = removePanel(panel);
+
+            // ADD NEW PANEL //
+            panel = new RequestForm().getRequestFormPanel();
             addPanel(panel, contentPane);
         }
     }
@@ -85,7 +96,7 @@ public class Terminal {
 
         // ADD CONTENT PANE TO FRAME //
         frame.add(contentPane);
-        frame.setSize(900, 400);
+        frame.setSize(1200, 600);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
     }

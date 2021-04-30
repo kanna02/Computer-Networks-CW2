@@ -16,7 +16,7 @@ public class StartConnection {
     private JLabel label_Port;
     private JLabel message;
 
-    public StartConnection() throws IOException {
+    public StartConnection() {
 
         // set tool tip text
         entry_IP.setToolTipText("Enter IP address here");
@@ -47,13 +47,12 @@ public class StartConnection {
                     /** get port from user input**/
                     String port = entry_Port.getText();
 
-
                     /*** create client socket and connect to server on chosen port ***/
                     message.setText("Connecting to server on port " + port);
                     Socket clientSocket = new Socket(addr, Integer.parseInt(port));
                     message.setText("Just connected to " + clientSocket.getRemoteSocketAddress());
 
-                    Terminal.nextPanel("start", startConnectionPanel);
+                    Terminal.nextPanel("start", getStartConnectionPanel());
                     //TODO: PROTOCOL? request
 
                 } catch (IOException ioException) {
@@ -79,4 +78,5 @@ public class StartConnection {
     public void setStartConnectionPanel(JPanel startConnectionPanel) {
         this.startConnectionPanel = startConnectionPanel;
     }
+
 }
