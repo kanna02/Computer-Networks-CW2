@@ -69,9 +69,12 @@ public class TCPClient {
             // to see if program runs  //
             boolean var = true;
             while (var) {
-            System.out.println("Press 1 to write a message" + "\n" + "Press 2 to write to server" + "\n" + "Press 3 to make a request" + "\n" + "Press 4 to view all messages in the GUI");
+            System.out.println("""
+                    Press 1 to create a message
+                    Press 2 to chat with server
+                    Press 3 to make a request
+                    Press 4 to view all messages in the GUI""");
             String entry = keyboardReader.readLine();
-
 
                 /** write and save a message **/
                 if (entry.equals("1")) {
@@ -85,8 +88,8 @@ public class TCPClient {
                 }
                 /** chat to server **/
                 else if (entry.equals("2")) {
-                    System.out.println("Press TAB and ENTER to stop");
-                    chat(clientSocket);
+                    System.out.println("Write STOP to stop");
+                    Chat.chat(clientSocket);
                 }
                 /** make requests **/
                 else if (entry.equals("3")) {
@@ -96,16 +99,21 @@ public class TCPClient {
                     System.out.print("Enter your request: ");
                     String requestEntry = scanner.next();
 
+                    DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
+
                     switch (requestEntry) {
-                        case "TIME?" -> Requests.time(clientSocket);
+                        case "TIME?" -> sendData.writeBytes(Requests.time(clientSocket)); // send reply to other peer
+
                         case "GET?" -> {
                             String hash = scanner.next();
-                            Requests.get(hash, clientSocket);
+                            sendData.writeBytes(Requests.get(hash, clientSocket));
+
                         }
                         case "LIST?" -> {
                             long since = scanner.nextLong();
                             int headers = scanner.nextInt(); // to count the headers
-                            Requests.list(since, headers, clientSocket);
+
+                            sendData.writeBytes(Requests.list(since, headers, clientSocket));
                         }
                         case "DELETE" -> {
                             String hash = scanner.next();
@@ -113,13 +121,19 @@ public class TCPClient {
 
                         }
                         case "BYE!" -> {
-                            Requests.bye(clientSocket);
+                            sendData.writeBytes(requestEntry);
                             keyboardReader.close();
                             var = false;
+                            Requests.bye(clientSocket); //closes client socket
+
+
 
                         }
                         default -> System.out.println("The request you have entered is not valid");
                     }
+                    sendData.close();
+
+
 
                 } else if (entry.equals("4")) {
 
@@ -146,44 +160,9 @@ public class TCPClient {
             } catch(IOException | NoSuchAlgorithmException | SQLException ex){
                 ex.printStackTrace();
             }
-
     }
-    /** **/
-    public void chat(Socket clientSocket) throws IOException {
 
-        /*** to send data to the server ***/
-        DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
 
-        /*** to read data coming from the server ****/
-        BufferedReader serverReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        /*** to read data from the keyboard ***/
-        BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
-
-        /** output what server says **/
-        String messageClient, messageServer;
-        while (true) {
-            messageClient = keyboardReader.readLine();
-
-            if (messageClient == null) {
-                break;
-            }
-
-            /*** send to the server ***/
-            sendData.writeBytes(messageClient + "\n");
-
-            /*** receive from the server ***/
-            messageServer = serverReader.readLine();
-
-            //System.out.println(messageClient);
-            System.out.println("Server says: " + messageServer);
-        }
-
-        /*** close connections ***/
-        sendData.close();
-        serverReader.close();
-        keyboardReader.close();
-    }
 
 
 

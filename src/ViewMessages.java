@@ -1,3 +1,4 @@
+//TODO: get rid of error: adding containers parent to itself
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;

@@ -47,11 +47,9 @@ public class TCPServer {
 //        System.out.print("PROTOCOL? ");
 //        Requests.protocol(clientSocket);
 
-
         /*** to send data to the client ***/
 //        PrintStream ps = new PrintStream(clientSocket.getOutputStream());
         DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
-
 
         /*** to read data coming from the client ***/
         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -67,29 +65,37 @@ public class TCPServer {
             /*** read from client ***/
             messageClient = clientReader.readLine();
 
-            System.out.println("Client says: " + messageClient);
+            if (messageClient.equals("BYE!")) {
+                break;
+            }
+
+//            System.out.println(messageClient);
+            System.out.println("Client says: " + messageClient); //use for chat
             messageServer = keyboardReader.readLine();
-
-            if (messageClient == null) {
-                break;
-            }
-            else if (messageClient.equals("BYE!")) {
-//                clientSocket.close();
-                serverSocket.close();
-                clientReader.close();
-                keyboardReader.close();
-                break;
-            }
-
-
 
 
 
             /*** send to client ***/
 //            ps.println(messageServer);
             sendData.writeBytes(messageServer + "\n");
+        }
 
-//        /** output what client says **/
+        /*** close connections ***/
+        serverSocket.close();
+        clientReader.close();
+        keyboardReader.close();
+
+
+    }
+
+    /*** run the program ***/
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+        TCPServer server = new TCPServer();
+        server.run();
+
+
+    }
+    /** output what client says **/
 //        while (true) {
 //            String messageClient, messageServer;
 //            messageServer = keyboardReader.readLine();
@@ -107,19 +113,5 @@ public class TCPServer {
 //            //System.out.println(messageClient);
 //            System.out.println("Client says: " + messageClient);
 //        }
-
-        }
-
-
-    }
-
-    /*** run the program ***/
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        TCPServer server = new TCPServer();
-        server.run();
-
-
-    }
-
 
 }

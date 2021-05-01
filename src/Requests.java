@@ -1,6 +1,5 @@
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,18 +27,19 @@ public class Requests {
         String reply = "PROTOCOL? " + version + " " + identifier;
         DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
         sendData.writeBytes(reply);
+        sendData.close();
     }
 
     /***
      * TIME? request.
      */
-    public static void time (Socket socket) throws IOException {
+    public static String time(Socket socket) throws IOException {
         long unixTime = Instant.now().getEpochSecond();
         String reply = "NOW " + unixTime;
        // System.out.println("NOW " + unixTime);
 
-        DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
-        sendData.writeBytes(reply);
+        return reply;
+
     }
 
     //TODO: both peers must close the sockets
@@ -56,8 +56,9 @@ public class Requests {
      * LIST? request.
      * @param since time since when message shall be selected
      * @param headers amount of headers used to look for message
+     * @return
      */
-    public static void list(long since, int headers, Socket socket) throws IOException {
+    public static String list(long since, int headers, Socket socket) throws IOException {
 
         //output sent to other peer
         StringBuilder reply;
@@ -105,6 +106,7 @@ public class Requests {
                     query = query + ";";
                 }
                 headers -= 1;
+
             }
 
             // EXECUTE //
@@ -132,24 +134,24 @@ public class Requests {
 
                 }
             }
+
         }
         // if time (since) entered is in future
         else {
             reply = new StringBuilder("You have entered a time in the future");
         }
-        // send the reply to other peer
-        DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
-        sendData.writeBytes(reply.toString());
+
+        return reply.toString();
     }
 
     /***
      * GET? request.
      * @param hash message ID
      */
-    public static void get (String hash, Socket socket) throws IOException {
+    public static String get (String hash, Socket socket) throws IOException {
 
         // output sent to other peer
-        StringBuilder reply ; //TODO: why must this be initialized????
+        StringBuilder reply = null; //TODO: why must this be initialized????
 
         // PREPARE QUERY //
         String query = "SELECT * FROM PoliteMessaging WHERE MessageID = \"" + hash + "\";";
@@ -159,6 +161,7 @@ public class Requests {
 
         // count found messages
         int count = 0;
+        assert resultSet != null;
         for (ArrayList<String> result : resultSet) {
 
             count += 1;
@@ -167,28 +170,34 @@ public class Requests {
             if (count != 0) {
                 reply = new StringBuilder("FOUND");
 
-                //TODO: add this to reply
-                System.out.println("Message-id: SHA-256 " + result.get(0));
-                System.out.println("Time-sent: " + result.get(1));
-                System.out.println("From: " + result.get(2));
+                reply.append("Message-id: SHA-256 ").append(result.get(0)).append("\n");
+//                System.out.println("Message-id: SHA-256 " + result.get(0));
+                reply.append("Time-sent: ").append(result.get(1)).append("\n");
+//                System.out.println("Time-sent: " + result.get(1));
+                reply.append("From: ").append(result.get(2)).append("\n");
+//                System.out.println("From: " + result.get(2));
                 if (!result.get(3).isEmpty()) { // 0...1
-                    System.out.println("To: " + result.get(3));
+                    reply.append("To: ").append(result.get(3)).append("\n");
+//                    System.out.println("To: " + result.get(3));
                 }
                 if (!result.get(4).isEmpty()) { // 0...1
-                    System.out.println("Topic: " + result.get(4));
+                    reply.append("Topic: ").append(result.get(4)).append("\n");
+//                    System.out.println("Topic: " + result.get(4));
                 }
                 if (!result.get(5).isEmpty()) { // 0...1
-                    System.out.println("Subject: " + result.get(5));
+                    reply.append("Subject: ").append(result.get(5)).append("\n");
+//                    System.out.println("Subject: " + result.get(5));
                 }
-                System.out.println("Contents: " + result.get(6));
-                System.out.println(result.get(7));
-                System.out.println('\n');
+                reply.append("Contents: ").append(result.get(6)).append("\n");
+//                System.out.println("Contents: " + result.get(6));
+                reply.append(result.get(7)).append("\n");
+//                System.out.println(result.get(7));
+//                System.out.println('\n');
             } else { reply = new StringBuilder("SORRY") ; } // reply if no message found
         }
+        assert reply != null;
+        return reply.toString();
 
-        // send the reply to other peer
-        DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
-        sendData.writeBytes(reply.toString());
 
     }
 
