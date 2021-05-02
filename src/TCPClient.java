@@ -1,8 +1,3 @@
-/**
- * Code Availability: https://www.bogotobogo.com/Java/tutorials/tcp_socket_server_client.php
- *
- */
-
 import javax.swing.*;
 import java.io.*;
 import java.net.*;
@@ -14,8 +9,6 @@ import java.util.Scanner;
  * A class to create a TCP Client.
  */
 public class TCPClient {
-    private static JFrame frame;
-    private static JPanel view;
     /**
      * Initialise a new client. To run the client, call run().
      */
@@ -26,10 +19,6 @@ public class TCPClient {
      */
     public void run() {
         try {
-
-            /*** get server IP address ***/
-            // InetAddress host = InetAddress.getLocalHost();
-            // InetAddress host = InetAddress.getByName("localhost");
 
             /*** get IP address from user input ***/
             Scanner scanner = new Scanner(System.in);
@@ -63,7 +52,6 @@ public class TCPClient {
 //            System.out.print("PROTOCOL? ");
 //            Requests.protocol(clientSocket);
 
-
             /*** readers for convenience ***/
             // read from keyboard
             BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
@@ -72,17 +60,16 @@ public class TCPClient {
             // send reply to server
             DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
 
-            // to see if program runs  //
+            // selection
             while (true) {
-            System.out.println("""
-                    Press 1 to create a message
-                    Press 2 to chat with server
-                    Press 3 to send request replies
-                    Press 4 to view all messages in the GUI""");
-            String entry = keyboardReader.readLine();
+                System.out.println("""
+                        Press 1 to create a message
+                        Press 2 to send request replies
+                        Press 3 to view all messages in the GUI""");
+                String entry = keyboardReader.readLine();
 
-                /** write and save a message **/
                 switch (entry) {
+                    /** write and save a message **/
                     case "1" -> {
                         Message message = new Message();
                         message.createMessage();
@@ -90,25 +77,19 @@ public class TCPClient {
                         message.writeToDatabase();
                         System.out.println("Your message has been created");
                     }
-//                    /** chat to server **/
-//                    case "2" -> {
-//                        System.out.println("Write STOP to stop");
-//                        Chat.chat(clientSocket);
-//                    }
                     /** make requests **/
-                    case "3" -> {
-//                        System.out.println("write STOP to stop");
+                    case "2" -> {
+                        System.out.println("server must write STOP to stop");
 
                         /** Example 2 - Server: LEFT, Client: RIGHT **/
-                        String reply, request, requestType;
+                        String reply, request, requestType; // reply- reply sent back to server
                         while (true) {
 
-                            /*** if server protocol == LEFT && client protocol == RIGHT ***/
                             // 3) Client reads request from server
-                            request = serverReader.readLine(); // full line (e.g. LIST? 1 1)
+                            request = serverReader.readLine(); // full request (e.g. LIST? 1 1)
 
                             String[] requestArray = request.split(" ");
-                            requestType = requestArray[0]; // only requestType (e.g. LISClient outputs servers request
+                            requestType = requestArray[0]; // only requestType (e.g. LIST?)
 
                             // 4) Client outputs servers request
                             System.out.println("Server says: " + request);
@@ -122,6 +103,7 @@ public class TCPClient {
                                 case "BYE!" -> {
                                     reply = request;
                                     sendData.writeBytes(reply); // write back "BYE!" to signal the closing of sockets
+                                    Database.closeConnection(Database.connect());
                                     Requests.bye(clientSocket); //closes client socket
                                 }
                                 case "LIST?" -> {
@@ -138,34 +120,35 @@ public class TCPClient {
                                     if (requestArray.length > 1) {
                                         String id = requestArray[1];
                                         reply = Requests.get(id);
-                                    } else {
-                                        reply = "You have forgotten to enter a message-id";
-                                    }
+                                    } else { reply = "You have forgotten to enter a message-id"; }
                                 }
+                                case "STOP" -> reply = "You have entered STOP. The client must now press 3 again to reply to your requests";
+
                                 default -> reply = "You have entered an invalid request";
                             }
-
 
                             // 6) Client sends reply to server
                             sendData.writeBytes(reply + "\n");
 
-//                            if (scanner.next().equals("STOP")){
-//                                break;
-//                            }
-
+                            // back to selection
+                            if (requestType.equals("STOP")) {
+                                break;
+                            }
                         }
                     }
-                    case "4" -> {
+                    /*** view messages in the GUI ***/
+                    case "3" -> {
 
                         // set look and feel
                         try {
-                            UIManager.setLookAndFeel(
-                                    new com.jtattoo.plaf.mint.MintLookAndFeel());
+                            UIManager.setLookAndFeel(new com.jtattoo.plaf.mint.MintLookAndFeel());
                         } catch (UnsupportedLookAndFeelException e) {
                         }
-                        frame = new JFrame("Polite Messaging");
+
+                        // create GUI frame and set panel
+                        JFrame frame = new JFrame("Polite Messaging");
                         Terminal.setFrame(frame);
-                        view = new ViewMessages().getViewMessagesPanel();
+                        JPanel view = new ViewMessages().getViewMessagesPanel();
                         frame.setContentPane(view);
                         frame.pack();
                         frame.setSize(1200, 600);
@@ -176,22 +159,18 @@ public class TCPClient {
                 }
             }
 
-            } catch(IOException | NoSuchAlgorithmException | SQLException ex){
-                ex.printStackTrace();
-            }
+        } catch (IOException | NoSuchAlgorithmException | SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
 
-
-
-
-    /*** to run the program ***/
+    /***
+     * Runs the client.
+     * @param args command-line arguments
+     */
         public static void main(String[] args) {
             TCPClient client = new TCPClient();
             client.run();
-
-
-
     }
-
 }

@@ -1,15 +1,6 @@
-/***
- * code availability: https://www.geeksforgeeks.org/establishing-the-two-way-communication-between-server-and-client-in-java/
- */
-
-
 import java.io.*;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.lang.Math;
-import java.security.NoSuchAlgorithmException;
-
 
 /***
  * A class to create a TCP Server.
@@ -27,17 +18,13 @@ public class TCPServer {
      */
     public void run() throws IOException {
 
-        /*** Set up to accept incoming TCP connections ***/
-
-        int port = 20111;
 
         /*** Opens the server socket ***/
+        int port = 20111;
         System.out.println("Opening the server socket on port " + port);
         ServerSocket serverSocket = new ServerSocket(port);
 
-
         /*** Receives client connection ***/
-
         // Waits until a client connects
         System.out.println("Server waiting for client...");
         Socket clientSocket = serverSocket.accept();
@@ -47,21 +34,18 @@ public class TCPServer {
 //        System.out.print("PROTOCOL? ");
 //        Requests.protocol(clientSocket);
 
-        /*** to send data to the client ***/
-//        PrintStream ps = new PrintStream(clientSocket.getOutputStream());
+        /*** readers for convenience ***/
+        // to send data to the client
         DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
-
-        /*** to read data coming from the client ***/
+        // to read data coming from the client
         BufferedReader clientReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        /*** to read data from the keyboard ***/
+        // to read data from the keyboard
         BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
 
         /** Example 2 - Server: LEFT, Client: RIGHT **/
 
         while (true) {
 
-            /*** if server protocol == LEFT && client protocol == RIGHT ***/
             // 1) Server enters request
             System.out.println("Enter your request: ");
             StringBuilder request = new StringBuilder(keyboardReader.readLine());
@@ -118,12 +102,14 @@ public class TCPServer {
         clientReader.close();
         keyboardReader.close();
         serverSocket.close();
-
-
     }
 
-    /*** run the program ***/
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+    /***
+     * Runs the server.
+     * @param args command-line arguments
+     * @throws IOException
+     */
+    public static void main(String[] args) throws IOException {
         TCPServer server = new TCPServer();
         server.run();
 

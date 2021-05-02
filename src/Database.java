@@ -2,16 +2,9 @@ import java.sql.*;
 import java.util.ArrayList;
 
 /*
-  Title: Accessing the MySQL Database with Java
-  Author: Cardiff School of Computer Science & Informatics
-  Date: 2021
-  Availability: https://docs.cs.cf.ac.uk/notes/accessing-mysql-with-java/
-  Code Location: Code in method connect() has been adapted from the example.
-
-  This code was taken and adapted from the solution of my team for the team project module.
+  This code was taken and adapted from the my teams solution for the team project module.
   Availability: GitLabs OHASTA
  */
-
 
 /**
  * A class for using the database.

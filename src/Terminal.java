@@ -1,55 +1,28 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 
 /**
- * A class for managing the GUI frames.
+ * A class for managing the GUI frame.
  */
 public class Terminal {
 
     private static JFrame frame;
 
+    /**
+     * Sets given panel to frame.
+     * @param next identifier of panel
+     * @param panel panel
+     */
     public static void nextPanel(String next, JPanel panel)  {
 
-        // IF NEXT PANEL IS START MENU //
-        if ("start".equals(next)) {
-
-            // REMOVE CURRENT PANEL //
-            Container contentPane = removePanel(panel);
-
-            // ADD NEW PANEL //
-            panel = new StartMenu().getStartMenuPanel();
-            addPanel(panel, contentPane);
-
-        }
         // IF NEXT PANEL IS VIEW MESSAGES //
-        else if ("view".equals(next)){
+        if ("view".equals(next)){
 
             // REMOVE CURRENT PANEL //
             Container contentPane = removePanel(panel);
 
             // ADD NEW PANEL //
             panel = new ViewMessages().getViewMessagesPanel();
-            addPanel(panel, contentPane);
-        }
-        // IF NEXT PANEL IS NEW MESSAGE
-        else if ("new".equals(next)){
-
-            // REMOVE CURRENT PANEL //
-            Container contentPane = removePanel(panel);
-
-            // ADD NEW PANEL //
-            panel = new NewMessage().getNewMessagePanel();
-            addPanel(panel, contentPane);
-        }
-        // IF NEXT PANEL IS REQUEST FORM
-        else if ("request".equals(next)){
-
-            // REMOVE CURRENT PANEL //
-            Container contentPane = removePanel(panel);
-
-            // ADD NEW PANEL //
-            panel = new RequestForm().getRequestFormPanel();
             addPanel(panel, contentPane);
         }
     }

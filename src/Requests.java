@@ -1,17 +1,18 @@
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Scanner;
 
-/**
- * A class for defining requests with their responses.
+/***
+ * A class for defining requests with their replies.
  */
 public class Requests {
 
-    /**
+    /***
      * PROTOCOL? request.
+     * @param version
+     * @param identifier
+     * @return reply
      * @throws IOException
      */
     public static String protocol(int version, String identifier) throws IOException {
@@ -20,17 +21,17 @@ public class Requests {
 
     /***
      * TIME? request.
+     * @return reply
+     * @throws IOException
      */
     public static String time() throws IOException {
         long unixTime = Instant.now().getEpochSecond();
         return "NOW " + unixTime;
-
     }
-
 
     /***
      * BYE! request.
-     * @param socket client/server socket to be closed
+     * @param socket client socket to be closed
      * @throws IOException
      */
     public static void bye (Socket socket) throws IOException {
@@ -40,7 +41,9 @@ public class Requests {
     /***
      * LIST? request.
      * @param since time since when message shall be selected
-     * @return
+     * @param entry header and content (e.g. Topic: #announcements)
+     * @return reply
+     * @throws IOException
      */
     public static String list(long since, String[] entry) throws IOException {
 
@@ -58,7 +61,7 @@ public class Requests {
             int index = entry.length; // counts entry length
             while (index >= 1) {
 
-                // add end (;) to query
+                // add end (;) to query to finish
                 if (index == 1) {
                     query = query + ";";
                     break;
@@ -73,9 +76,9 @@ public class Requests {
                 // PREPARE REST OF QUERY //
                 query = switch (headerType) {
                     case "Topic" -> query + " AND Topic=" + "\'" + content + "\'";
-                    case "Origin" -> query + " AND Origin=" + "\'" + content + "\'";
+                    case "From" -> query + " AND Origin=" + "\'" + content + "\'";
                     case "Subject" -> query + " AND Subject=" + "\'" + content + "\'";
-                    case "Recipient" -> query + " AND Recipient=" + "\'" + content + "\'";
+                    case "To" -> query + " AND Recipient=" + "\'" + content + "\'";
                     default -> null;
                 };
                 index -= 1;
@@ -90,22 +93,20 @@ public class Requests {
             }
             if (count == 0) {
                 reply = new StringBuilder("No messages found");
-//                System.out.println("No messages found");
             }
             // print reply (number of messages found, ids of found messages)
             else {
                 reply = new StringBuilder("MESSAGES " + count + " ");
-//                System.out.println("MESSAGES " + count);
-                for(int i=0; i < resultSet.size(); i++){
-                    String idArray = resultSet.get(i).toString(); //gets the element from the arraylist
-                    String oneBracket = idArray.replace("[",""); //removes one square bracket
-                    String id = oneBracket.replace("]",""); //removes other square bracket
+                for (ArrayList<String> strings : resultSet) {
+                    String idArray = strings.toString(); //gets the element from the arraylist
+                    String oneBracket = idArray.replace("[", ""); //removes one square bracket
+                    String id = oneBracket.replace("]", ""); //removes other square bracket
                     reply.append("\n").append(id); // add found id's to reply
                 }
             }
 
         }
-        // if time (since) entered is in future
+        // if time (since) entered is in the future
         else {
             reply = new StringBuilder("You have entered a time in the future");
         }
@@ -115,6 +116,8 @@ public class Requests {
     /***
      * GET? request.
      * @param hash message ID
+     * @return reply
+     * @throws IOException
      */
     public static String get(String hash) throws IOException {
 
@@ -150,7 +153,7 @@ public class Requests {
                     lineCounter +=1;
                 }
                 int contents = Integer.parseInt(result.get(6));
-                lineCounter += contents; // for the body
+                lineCounter += contents; // increase line count for the body
 
                 // create first line of reply
                 reply = new StringBuilder( lineCounter + " FOUND" +"\n");
