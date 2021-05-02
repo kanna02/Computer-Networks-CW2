@@ -14,35 +14,20 @@ public class Requests {
      * PROTOCOL? request.
      * @throws IOException
      */
-    public static void protocol (Socket socket) throws IOException {
-
-        Scanner scanner = new Scanner(System.in);
-
-        int version = scanner.nextInt();
-        String identifier = scanner.next();
-
-//        System.out.println("PROTOCOL? " + version + " " + identifier);
-
-        // send to other peer
-        String reply = "PROTOCOL? " + version + " " + identifier;
-        DataOutputStream sendData = new DataOutputStream(socket.getOutputStream());
-        sendData.writeBytes(reply);
-        sendData.close();
+    public static String protocol(int version, String identifier) throws IOException {
+        return "PROTOCOL? " + version + " " + identifier;
     }
 
     /***
      * TIME? request.
      */
-    public static String time(Socket socket) throws IOException {
+    public static String time() throws IOException {
         long unixTime = Instant.now().getEpochSecond();
-        String reply = "NOW " + unixTime;
-       // System.out.println("NOW " + unixTime);
-
-        return reply;
+        return "NOW " + unixTime;
 
     }
 
-    //TODO: both peers must close the sockets
+
     /***
      * BYE! request.
      * @param socket client/server socket to be closed
@@ -55,10 +40,9 @@ public class Requests {
     /***
      * LIST? request.
      * @param since time since when message shall be selected
-     * @param headers amount of headers used to look for message
      * @return
      */
-    public static String list(long since, int headers, Socket socket) throws IOException {
+    public static String list(long since, String[] entry) throws IOException {
 
         //output sent to other peer
         StringBuilder reply;
@@ -71,42 +55,30 @@ public class Requests {
         if (since <= currentTime) {
 
             int count = 0; // counts number of found messages
+            int index = entry.length; // counts entry length
+            while (index >= 1) {
 
-            while (headers > 0) {
-
-                // get headerType and content from user input
-                Scanner scanner = new Scanner(System.in);
-                String entry = scanner.nextLine();
+                // add end (;) to query
+                if (index == 1) {
+                    query = query + ";";
+                    break;
+                }
 
                 // split entry by ": "
-                String[] header = entry.split("\\:+\\s");
+                String[] header = entry[index-1].split("\\:+\\s");
 
                 String headerType = header[0];
                 String content = header[1];
 
                 // PREPARE REST OF QUERY //
-                if (headerType.equals("Topic")) {
-                    query = query + " AND Topic=" + "\'" + content + "\'";
-
-                } else if (headerType.equals("Origin")) {
-                    query = query + " AND Origin=" + "\'" + content + "\'";
-
-                }
-                else if (headerType.equals("Subject")) {
-                    query = query + " AND Subject=" + "\'" + content + "\'";
-
-                }
-                else if (headerType.equals("Recipient")) {
-                    query = query + " AND Recipient=" + "\'" + content + "\'";
-
-                } else { query = null; }
-
-                // add end (;) to query
-                if (headers == 1) {
-                    query = query + ";";
-                }
-                headers -= 1;
-
+                query = switch (headerType) {
+                    case "Topic" -> query + " AND Topic=" + "\'" + content + "\'";
+                    case "Origin" -> query + " AND Origin=" + "\'" + content + "\'";
+                    case "Subject" -> query + " AND Subject=" + "\'" + content + "\'";
+                    case "Recipient" -> query + " AND Recipient=" + "\'" + content + "\'";
+                    default -> null;
+                };
+                index -= 1;
             }
 
             // EXECUTE //
@@ -120,18 +92,15 @@ public class Requests {
                 reply = new StringBuilder("No messages found");
 //                System.out.println("No messages found");
             }
-
             // print reply (number of messages found, ids of found messages)
             else {
-                reply = new StringBuilder("MESSAGES " + count);
+                reply = new StringBuilder("MESSAGES " + count + " ");
 //                System.out.println("MESSAGES " + count);
                 for(int i=0; i < resultSet.size(); i++){
                     String idArray = resultSet.get(i).toString(); //gets the element from the arraylist
                     String oneBracket = idArray.replace("[",""); //removes one square bracket
                     String id = oneBracket.replace("]",""); //removes other square bracket
                     reply.append("\n").append(id); // add found id's to reply
-                    //TODO: server cannot read in multiple lines at once
-
                 }
             }
 
@@ -140,7 +109,6 @@ public class Requests {
         else {
             reply = new StringBuilder("You have entered a time in the future");
         }
-
         return reply.toString();
     }
 
@@ -148,10 +116,13 @@ public class Requests {
      * GET? request.
      * @param hash message ID
      */
-    public static String get (String hash, Socket socket) throws IOException {
+    public static String get(String hash) throws IOException {
+
+        // counts lines of reply
+        int lineCounter = 5; // =1 because reply will always have a line in the beginning (FOUND?SORRY), and necessary headers (id, time, from, contents)
 
         // output sent to other peer
-        StringBuilder reply = null; //TODO: why must this be initialized????
+        StringBuilder reply = new StringBuilder("SORRY");
 
         // PREPARE QUERY //
         String query = "SELECT * FROM PoliteMessaging WHERE MessageID = \"" + hash + "\";";
@@ -168,39 +139,41 @@ public class Requests {
 
             // reply if message found -> print message
             if (count != 0) {
-                reply = new StringBuilder("FOUND");
+                // increase line counter based on message length
+                if (!result.get(3).isEmpty()) { // 0...1
+                    lineCounter +=1;
+                }
+                if (!result.get(4).isEmpty()) { // 0...1
+                    lineCounter +=1;
+                }
+                if (!result.get(5).isEmpty()) { // 0...1
+                    lineCounter +=1;
+                }
+                int contents = Integer.parseInt(result.get(6));
+                lineCounter += contents; // for the body
 
+                // create first line of reply
+                reply = new StringBuilder( lineCounter + " FOUND" +"\n");
+
+                // add rest of message to reply
                 reply.append("Message-id: SHA-256 ").append(result.get(0)).append("\n");
-//                System.out.println("Message-id: SHA-256 " + result.get(0));
                 reply.append("Time-sent: ").append(result.get(1)).append("\n");
-//                System.out.println("Time-sent: " + result.get(1));
                 reply.append("From: ").append(result.get(2)).append("\n");
-//                System.out.println("From: " + result.get(2));
                 if (!result.get(3).isEmpty()) { // 0...1
                     reply.append("To: ").append(result.get(3)).append("\n");
-//                    System.out.println("To: " + result.get(3));
                 }
                 if (!result.get(4).isEmpty()) { // 0...1
                     reply.append("Topic: ").append(result.get(4)).append("\n");
-//                    System.out.println("Topic: " + result.get(4));
                 }
                 if (!result.get(5).isEmpty()) { // 0...1
                     reply.append("Subject: ").append(result.get(5)).append("\n");
-//                    System.out.println("Subject: " + result.get(5));
                 }
                 reply.append("Contents: ").append(result.get(6)).append("\n");
-//                System.out.println("Contents: " + result.get(6));
                 reply.append(result.get(7)).append("\n");
-//                System.out.println(result.get(7));
-//                System.out.println('\n');
-            } else { reply = new StringBuilder("SORRY") ; } // reply if no message found
+            }
         }
-        assert reply != null;
         return reply.toString();
-
-
     }
-
 }
 
 

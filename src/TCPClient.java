@@ -63,97 +63,116 @@ public class TCPClient {
 //            System.out.print("PROTOCOL? ");
 //            Requests.protocol(clientSocket);
 
-            /*** to read data from the keyboard ***/
+
+            /*** readers for convenience ***/
+            // read from keyboard
             BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
+            // read request from server
+            BufferedReader serverReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            // send reply to server
+            DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
 
             // to see if program runs  //
-            boolean var = true;
-            while (var) {
+            while (true) {
             System.out.println("""
                     Press 1 to create a message
                     Press 2 to chat with server
-                    Press 3 to make a request
+                    Press 3 to send request replies
                     Press 4 to view all messages in the GUI""");
             String entry = keyboardReader.readLine();
 
                 /** write and save a message **/
-                if (entry.equals("1")) {
-
-                    Message message = new Message();
-                    message.createMessage();
-                    message.writeToFile();
-                    message.writeToDatabase();
-
-                    System.out.println("Your message has been created");
-                }
-                /** chat to server **/
-                else if (entry.equals("2")) {
-                    System.out.println("Write STOP to stop");
-                    Chat.chat(clientSocket);
-                }
-                /** make requests **/
-                else if (entry.equals("3")) {
-
-                    System.out.println("Possible requests: TIME?, BYE!, GET?, LIST?, DELETE");
-
-                    System.out.print("Enter your request: ");
-                    String requestEntry = scanner.next();
-
-                    DataOutputStream sendData = new DataOutputStream(clientSocket.getOutputStream());
-
-                    switch (requestEntry) {
-                        case "TIME?" -> sendData.writeBytes(Requests.time(clientSocket)); // send reply to other peer
-
-                        case "GET?" -> {
-                            String hash = scanner.next();
-                            sendData.writeBytes(Requests.get(hash, clientSocket));
-
-                        }
-                        case "LIST?" -> {
-                            long since = scanner.nextLong();
-                            int headers = scanner.nextInt(); // to count the headers
-
-                            sendData.writeBytes(Requests.list(since, headers, clientSocket));
-                        }
-                        case "DELETE" -> {
-                            String hash = scanner.next();
-                            Message.delete(hash);
-
-                        }
-                        case "BYE!" -> {
-                            sendData.writeBytes(requestEntry);
-                            keyboardReader.close();
-                            var = false;
-                            Requests.bye(clientSocket); //closes client socket
-
-
-
-                        }
-                        default -> System.out.println("The request you have entered is not valid");
+                switch (entry) {
+                    case "1" -> {
+                        Message message = new Message();
+                        message.createMessage();
+                        message.writeToFile();
+                        message.writeToDatabase();
+                        System.out.println("Your message has been created");
                     }
-                    sendData.close();
+//                    /** chat to server **/
+//                    case "2" -> {
+//                        System.out.println("Write STOP to stop");
+//                        Chat.chat(clientSocket);
+//                    }
+                    /** make requests **/
+                    case "3" -> {
+//                        System.out.println("write STOP to stop");
+
+                        /** Example 2 - Server: LEFT, Client: RIGHT **/
+                        String reply, request, requestType;
+                        while (true) {
+
+                            /*** if server protocol == LEFT && client protocol == RIGHT ***/
+                            // 3) Client reads request from server
+                            request = serverReader.readLine(); // full line (e.g. LIST? 1 1)
+
+                            String[] requestArray = request.split(" ");
+                            requestType = requestArray[0]; // only requestType (e.g. LISClient outputs servers request
+
+                            // 4) Client outputs servers request
+                            System.out.println("Server says: " + request);
+
+                            // 5) Client executes request
+                            switch (requestType) {
+                                case "TIME?" -> {
+                                    System.out.println(Requests.time());
+                                    reply = Requests.time();
+                                }
+                                case "BYE!" -> {
+                                    reply = request;
+                                    sendData.writeBytes(reply); // write back "BYE!" to signal the closing of sockets
+                                    Requests.bye(clientSocket); //closes client socket
+                                }
+                                case "LIST?" -> {
+                                    long since = Long.parseLong(requestArray[1]);
+                                    String[] listEntry = request.split("/"); // split list entry into array
+                                    reply = Requests.list(since, listEntry);
+                                }
+                                case "DELETE" -> {
+                                    String id = requestArray[1];
+                                    Message.delete(id);
+                                    reply = "Message deleted";
+                                }
+                                case "GET?" -> {
+                                    if (requestArray.length > 1) {
+                                        String id = requestArray[1];
+                                        reply = Requests.get(id);
+                                    } else {
+                                        reply = "You have forgotten to enter a message-id";
+                                    }
+                                }
+                                default -> reply = "You have entered an invalid request";
+                            }
 
 
+                            // 6) Client sends reply to server
+                            sendData.writeBytes(reply + "\n");
 
-                } else if (entry.equals("4")) {
+//                            if (scanner.next().equals("STOP")){
+//                                break;
+//                            }
 
-                    // set look and feel
-                    try {
-                        UIManager.setLookAndFeel(
-                                new com.jtattoo.plaf.mint.MintLookAndFeel());
-                    } catch (UnsupportedLookAndFeelException e) {
+                        }
                     }
+                    case "4" -> {
 
-                    frame = new JFrame("Polite Messaging");
-                    Terminal.setFrame(frame);
-                    view = new ViewMessages().getViewMessagesPanel();
-
-                    frame.setContentPane(view);
-                    frame.pack();
-                    frame.setSize(1200, 600);
-                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
+                        // set look and feel
+                        try {
+                            UIManager.setLookAndFeel(
+                                    new com.jtattoo.plaf.mint.MintLookAndFeel());
+                        } catch (UnsupportedLookAndFeelException e) {
+                        }
+                        frame = new JFrame("Polite Messaging");
+                        Terminal.setFrame(frame);
+                        view = new ViewMessages().getViewMessagesPanel();
+                        frame.setContentPane(view);
+                        frame.pack();
+                        frame.setSize(1200, 600);
+                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        frame.setLocationRelativeTo(null);
+                        frame.setVisible(true);
+                    }
                 }
             }
 

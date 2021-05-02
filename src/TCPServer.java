@@ -57,33 +57,67 @@ public class TCPServer {
         /*** to read data from the keyboard ***/
         BufferedReader keyboardReader = new BufferedReader(new InputStreamReader(System.in));
 
+        /** Example 2 - Server: LEFT, Client: RIGHT **/
 
-        /*** output what client says ***/
         while (true) {
-            String messageClient, messageServer;
 
-            /*** read from client ***/
-            messageClient = clientReader.readLine();
+            /*** if server protocol == LEFT && client protocol == RIGHT ***/
+            // 1) Server enters request
+            System.out.println("Enter your request: ");
+            StringBuilder request = new StringBuilder(keyboardReader.readLine());
 
-            if (messageClient.equals("BYE!")) {
+            String[] requestArray = request.toString().split(" ");
+            String requestType = requestArray[0]; // only requestType (e.g. LIST?)
+
+            if (requestType.equals("LIST?")) {
+                int headers = Integer.parseInt(requestArray[2]);
+
+                while (headers > 0) {
+
+                    String entry = keyboardReader.readLine();
+                    request.append("/").append(entry); // ad "/" to request to divide (LIST? since headers) from (header: content)
+
+                    headers -= 1;
+                }
+            }
+
+            // 2) Server sends request to client
+            sendData.writeBytes(request + "\n");
+
+            // 7) Server reads reply
+            String replyClient = clientReader.readLine();
+
+            // read in multiple lines if successful LIST?/GET? reply
+            if (replyClient.contains("MESSAGES")) {
+                String[] header = replyClient.split(" ");
+                int count = Integer.parseInt(header[1]);
+                while (count > 0) {
+                    replyClient = replyClient + "\n" + clientReader.readLine();
+                    count--;
+                }
+            } else if (replyClient.contains("FOUND")) {
+                String[] header = replyClient.split(" ");
+                int count = Integer.parseInt(header[0]);
+                replyClient = "FOUND"; // take away the lineCounter
+                while (count > 0) {
+                    replyClient = replyClient + "\n" + clientReader.readLine();
+                    count--;
+                }
+            }
+            // close connections
+            else if (replyClient.equals("BYE!")) {
                 break;
             }
 
-//            System.out.println(messageClient);
-            System.out.println("Client says: " + messageClient); //use for chat
-            messageServer = keyboardReader.readLine();
+            // 8) Server outputs reply
+            System.out.println("Client says: " + replyClient);
 
-
-
-            /*** send to client ***/
-//            ps.println(messageServer);
-            sendData.writeBytes(messageServer + "\n");
         }
 
-        /*** close connections ***/
-        serverSocket.close();
+        // close connections
         clientReader.close();
         keyboardReader.close();
+        serverSocket.close();
 
 
     }
@@ -93,25 +127,7 @@ public class TCPServer {
         TCPServer server = new TCPServer();
         server.run();
 
-
     }
-    /** output what client says **/
-//        while (true) {
-//            String messageClient, messageServer;
-//            messageServer = keyboardReader.readLine();
-//
-//            if (messageServer == null) {
-//                break;
-//            }
-//
-//            /*** send to the client ***/
-//            sendData.writeBytes(messageServer + "\n");
-//
-//            /*** receive from the client ***/
-//            messageClient = clientReader.readLine();
-//
-//            //System.out.println(messageClient);
-//            System.out.println("Client says: " + messageClient);
-//        }
+
 
 }
