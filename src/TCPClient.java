@@ -64,7 +64,7 @@ public class TCPClient {
             while (true) {
                 System.out.println("""
                         Press 1 to create a message
-                        Press 2 to send request replies
+                        Press 2 to reply to the requests
                         Press 3 to view all messages in the GUI""");
                 String entry = keyboardReader.readLine();
 

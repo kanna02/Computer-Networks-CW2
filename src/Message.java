@@ -1,11 +1,7 @@
-//TODO: comment correctly
-//TODO: add error message when forgotten header
 /***
- * Code availability: https://www.dev2qa.com/how-to-write-console-output-to-text-file-in-java/
  * Code availability for SHA-256: https://www.geeksforgeeks.org/sha-256-hash-in-java/
+ * for toHexString method
  */
-
-import org.w3c.dom.ls.LSOutput;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -21,6 +17,7 @@ import java.util.Scanner;
  */
 public class Message {
 
+    // fields used when creating a message
     private long unixTime;
     private String from;
     private String to;
@@ -30,9 +27,10 @@ public class Message {
     private int contents;
     private String messageID;
 
-
     /**
-     * Constructor
+     * Class constructor.
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
      */
     public Message() throws IOException, NoSuchAlgorithmException { }
 
@@ -45,31 +43,26 @@ public class Message {
 
     MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
-
-    public void createMessage(/*String from, String to, String topic, String subject, int contents ,String body*/) throws IOException, NoSuchAlgorithmException {
+    public void createMessage() throws IOException, NoSuchAlgorithmException {
 
         /*** time ***/
         unixTime = Instant.now().getEpochSecond();
 
-        /*** from ***/
+        /*** from (origin) ***/
         System.out.print("Enter origin: ");
         from = keyboardReader.readLine();
-//        from = NewMessage.getFrom();
 
         /*** to (recipient) ***/
         System.out.print("Enter recipient: ");
         to = keyboardReader.readLine();
-//        to = NewMessage.getTo();
 
         /*** topic ***/
         System.out.print("Enter topic: ");
         topic = keyboardReader.readLine();
-//        topic = NewMessage.getTopic();
 
         /*** subject ***/
         System.out.print("Enter Subject: ");
         subject = keyboardReader.readLine();
-//        subject = NewMessage.getSubject();
 
         /*** body (includes contents) ***/
         System.out.println("Enter message. Press TAB and then ENTER to finish");
@@ -87,10 +80,8 @@ public class Message {
         }
 
         /*** Generate SHA-256 sum of the message ***/
-
         BigInteger time_big = new BigInteger(String.valueOf(unixTime)); // time to big int
         BigInteger contents_big = new BigInteger(String.valueOf(contents)); // contents to big int
-
         // add headers and body to hash
         messageDigest.update(time_big.toByteArray()); // add time header as byte array
         messageDigest.update(from.getBytes(StandardCharsets.UTF_8));
@@ -99,12 +90,14 @@ public class Message {
         messageDigest.update(subject.getBytes(StandardCharsets.UTF_8));
         messageDigest.update(contents_big.toByteArray()); // add contents header as byte array
         messageDigest.update(body.getBytes(StandardCharsets.UTF_8));
-
         // generate hash
         messageID = toHexString(messageDigest.digest());
     }
 
-    /*** writes the message to a text file ***/
+    /**
+     * Method to write a message to a file.
+     * @throws NoSuchAlgorithmException
+     */
     public void writeToFile() throws NoSuchAlgorithmException {
 
         printWriter.println("Message-ID: SHA-256 " + messageID );
@@ -119,7 +112,7 @@ public class Message {
 
     }
 
-    /***
+    /**
      * Method to add a message to the database.
      */
     public void writeToDatabase(){
@@ -166,14 +159,4 @@ public class Message {
         return hexString.toString();
     }
 
-    /*** to run the program ***/
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        Message message = new Message();
-
-//        message.createMessage();
-        message.writeToFile();
-        message.writeToDatabase();
-
-
-    }
 }
